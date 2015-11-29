@@ -31,7 +31,7 @@ server {
   error_log {{ nginx_log_dir }}/kibana.error.log error;
 
   # Access restriction
-  {% if KIBANA_ENABLE_BASIC_AUTH %}
+  {% if KIBANA_ENABLE_BASIC_AUTH|bool %}
     {% include "basic-auth.j2" %}
   {% endif %}
 

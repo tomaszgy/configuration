@@ -18,7 +18,7 @@ server {
   listen {{ XSERVER_NGINX_PORT }} default_server;
 
   location / {
-    {% if XSERVER_ENABLE_BASIC_AUTH %}
+    {% if XSERVER_ENABLE_BASIC_AUTH|bool %}
       {% include "basic-auth.j2" %}
     {% endif %}
     try_files $uri @proxy_to_app;
