@@ -374,12 +374,11 @@
 
 - name: ensure edxapp_workers has started
   supervisorctl: >
-    name="edxapp_worker:{{ item.service_variant }}_{{ item.queue }}_{{ item.concurrency }}"
+    name="edxapp_worker:"
     supervisorctl_path={{ supervisor_ctl }}
     config={{ supervisor_cfg }}
     state=started
   when: celery_worker is defined and not disable_edx_services
-  with_items: edxapp_workers
   sudo_user: "{{ supervisor_service_user }}"
   tags:
     - manage
@@ -438,12 +437,11 @@
 
 - name: restart edxapp_workers
   supervisorctl: >
-    name="edxapp_worker:{{ item.service_variant }}_{{ item.queue }}_{{ item.concurrency }}"
+    name="edxapp_worker:"
     supervisorctl_path={{ supervisor_ctl }}
     config={{ supervisor_cfg }}
     state=restarted
   when: edxapp_installed is defined and celery_worker is defined and not disable_edx_services
-  with_items: edxapp_workers
   sudo_user: "{{ common_web_user }}"
   tags:
     - manage
