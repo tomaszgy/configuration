@@ -22,6 +22,15 @@
 # - common
 # 
 
+- name: create all service directories
+  file: >
+    path="{{ item.value.path }}"
+    state="directory"
+    owner="{{ item.value.owner }}"
+    group="{{ item.value.group }}"
+    mode="{{ item.value.mode }}"
+  with_dict: vhost_dirs
+
 - name: Copy the templates to their respestive destination
   template:
     dest: "{{ item.dest }}"
