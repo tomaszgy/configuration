@@ -37,8 +37,8 @@
         {{ edxapp_venv_dir }}/bin/python manage.py lms migrate --settings=aws
         chdir={{ edxapp_code_dir }}
       environment:
-        DB_MIGRATION_USER: "{{ edxapp_mysql_user }}"
-        DB_MIGRATION_PASS: "{{ edxapp_mysql_password }}"
+        DB_USER: "{{ edxapp_mysql_user }}"
+        DB_PASS: "{{ edxapp_mysql_password }}"
       notify:
         - "restart edxapp"
         - "restart workers"

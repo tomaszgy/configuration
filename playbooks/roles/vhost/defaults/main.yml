@@ -11,15 +11,19 @@
 # Defaults for role vhost
 # 
 
-#
-# vars are namespaced with the module name.
-#
-vhost_role_name: vhost
-
-#
-# OS packages
-#
-
-vhost_debian_pkgs: []
-
-vhost_redhat_pkgs: []
+vhost_dirs:
+  home:
+    path: "{{ COMMON_APP_DIR }}/{{ COMMON_VHOST_ROLE_NAME }}"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  logs:
+    path: "{{ COMMON_LOG_DIR }}/{{ COMMON_VHOST_ROLE_NAME }}"
+    owner: "syslog"
+    group: "syslog"
+    mode: "0650"
+  data:
+    path: "{{ COMMON_DATA_DIR }}/{{ COMMON_VHOST_ROLE_NAME }}"
+    owner: "root"
+    group: "root"
+    mode: "0700"
