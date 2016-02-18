@@ -68,13 +68,15 @@ openedx_releases = {
   "named-release/dogwood.1" => {
     :name => "dogwood-devstack-2016-03-09", :file => "dogwood-devstack-2016-03-09.box",
   },
-  "named-release/dogwood" => {
+  "named-release/dogwood.rc2" => {
     :name => "dogwood-devstack-rc2", :file => "20151221-dogwood-devstack-rc2.box",
   },
-  # Cypress is deprecated and unsupported
-  # "named-release/cypress" => {
-  #   :name => "cypress-devstack", :file => "cypress-devstack.box",
-  # },
+  "named-release/dogwood.rc3" => {
+    :name => "dogwood-devstack-rc2", :file => "20151221-dogwood-devstack-rc2.box",
+  },
+  "named-release/cypress" => {
+    :name => "cypress-devstack", :file => "cypress-devstack.box",
+  },
   # Birch is deprecated and unsupported
   # "named-release/birch.2" => {
   #   :name => "birch-devstack-2", :file => "birch-2-devstack.box",
