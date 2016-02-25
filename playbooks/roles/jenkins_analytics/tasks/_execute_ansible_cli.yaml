@@ -31,9 +31,14 @@
            --password-file={{ jenkins_cli_pass }}
 
 - name: execute command
-  command: java -jar {{jenkins_cli_jar}} -s http://localhost:{{ jenkins_port }}
-           {{ jenkins_command_string }}
+  shell: >
+    {{ jenkins_command_prefix|default('') }} java -jar {{jenkins_cli_jar}} -s http://localhost:{{ jenkins_port }}
+    {{ jenkins_command_string }}
   register: jenkins_command_output
+  ignore_errors: "{{ jenkins_ignore_cli_errors| default (False) }}"
 
 - name: clean up
   file: name=jenkins_cli_root state=absent
+
+- name: clean up
+  command: rm -rf $HOME/.jenkins

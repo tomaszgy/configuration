@@ -6,7 +6,7 @@
   <mode>NORMAL</mode>
   <useSecurity>true</useSecurity>
   {% if jenkins_auth_realm.name == "unix" %}
-  <authorizationStrategy class="hudson.security.GlobalMatrixAuthorizationStrategy">
+   <authorizationStrategy class="hudson.security.GlobalMatrixAuthorizationStrategy">
     <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Create:jenkins</permission>
     <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Delete:jenkins</permission>
     <permission>com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:jenkins</permission>
@@ -28,7 +28,10 @@
     <permission>hudson.model.Item.Configure:jenkins</permission>
     <permission>hudson.model.Item.Create:jenkins</permission>
     <permission>hudson.model.Item.Delete:jenkins</permission>
+    <permission>hudson.model.Item.Discover:anonymous</permission>
     <permission>hudson.model.Item.Discover:jenkins</permission>
+    <permission>hudson.model.Item.Move:jenkins</permission>
+    <permission>hudson.model.Item.Read:anonymous</permission>
     <permission>hudson.model.Item.Read:jenkins</permission>
     <permission>hudson.model.Item.Workspace:jenkins</permission>
     <permission>hudson.model.Run.Delete:jenkins</permission>
