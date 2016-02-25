@@ -13,7 +13,7 @@
   notify: restart Jenkins
 # As above: I just want to set password for user, not touching rest of
 # config
-- shell: cat /etc/shadow | grep {{ jenkins_user }}:{{jenkins_auth_realm.crypted_password}}
+- shell: cat /etc/shadow | grep '{{ jenkins_user }}:{{jenkins_auth_realm.crypted_password}}'
   ignore_errors: yes
   changed_when: false
   register: out

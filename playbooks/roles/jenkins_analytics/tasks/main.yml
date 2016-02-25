@@ -1,6 +1,8 @@
 ---
 - include: _auth_realm.yaml
-- include: _execute_ansible_cli.yaml
-  vars:
-    jenkins_command_string: "who-am-i"
-- debug: var=jenkins_command_output
+# TODO: Remove me it checks whether cli works
+#- include: _execute_ansible_cli.yaml
+#  vars:
+#    jenkins_command_string: "who-am-i"
+#- debug: var=jenkins_command_output
+- include: _add_credentials.yaml

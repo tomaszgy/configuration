@@ -1,5 +1,7 @@
 ---
 # tasks file for jenkins_cli
+- fail: msg=for now we can execute commands iff jenkins auth relm is unix
+  when: jenkins_auth_realm.name != "unix"
 - set_fact:
     jenkins_cli_root: "/tmp/jenkins-cli/{{ ansible_ssh_user }}"
 - set_fact:
@@ -22,9 +24,6 @@
   get_url:
     url: "http://localhost:{{ jenkins_port }}/jnlpJars/jenkins-cli.jar"
     dest: "{{ jenkins_cli_jar }}"
-
-- fail: msg=for now we can execute commands iff jenkins auth relm is unix
-  when: jenkins_auth_realm.name != "unix"
 
 - name: login
   command: java -jar {{jenkins_cli_jar}} -s http://localhost:{{ jenkins_port }}
