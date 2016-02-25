@@ -1,0 +1,6 @@
+---
+- include: _auth_realm.yaml
+- include: _execute_ansible_cli.yaml
+  vars:
+    jenkins_command_string: "who-am-i"
+- debug: var=jenkins_command_output
