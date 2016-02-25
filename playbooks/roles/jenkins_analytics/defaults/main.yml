@@ -1,9 +1,8 @@
 ---
-# !!!!!!!!!!!!!!!!
-# See Readme.md for variable descriptions
-# !!!!!!!!!!!!!!!
 
-jenkins_credentials_file:  files/ansible-jenkins-credentials.yaml
+# See Readme.md for variable descriptions
+
+jenkins_credentials_file:  files/ansible-jenkins-credentials.json
 jenkins_connection_retries: 60
 jenkins_connection_delay: 0.5
 jenkins_auth_realm:

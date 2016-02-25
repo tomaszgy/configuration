@@ -22,7 +22,7 @@ import hudson.model.*
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey
-import org.yaml.snakeyaml.Yaml
+import groovy.json.JsonSlurper;
 
 boolean addUsernamePassword(scope, id, username, password, description) {
     provider = SystemCredentialsProvider.getInstance()
@@ -41,10 +41,8 @@ boolean addSSHUserPrivateKey(scope, id, username, privateKey, passphrase, descri
     return true
 }
 
-def y = new Yaml()
-def reader = new FileReader(new File("{{ jenkins_credentials_file_dest }}"))
-def d = y.load(reader)
-reader.close()
+def jsonSlurper = new JsonSlurper()
+def d = jsonSlurper.parse(new FileReader(new File("{{jenkins_credentials_file_dest}}")))
 
 d.credentials.each { cred ->
 

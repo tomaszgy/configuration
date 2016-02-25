@@ -16,15 +16,13 @@ Configuration
 
 Following variables are used by this role:
 
-You need to provide a yaml file containing credentials
+You need to provide a json file containing credentials
 to be uploaded to server. This file is **a local file**
 suitable for use in ``copy`` module. This file is set by
 following variable:
 
-    jenkins_credentials_file:  files/ansible-jenkins-credentials.yaml
+    jenkins_credentials_file:  files/ansible-jenkins-credentials.json
 
-See ``jenkins_analytics/meta/ansible-jenkins-credentials.yaml``
-for an example.
 
 Used by command waiting on jenkins start-up after running ``jenkins_master``
 role:
@@ -104,25 +102,34 @@ Example scm configuration:
         targed_jobs: "jobs/analytics-edx-jenkins.edx.org/*Jobs.groovy"
         additional_classpath: "src/main/groovy"
 
+Credential file example
+-----------------------
 
+To generate a proper json credential file I strongly suggest:
+
+1. Write the file in ``yaml`` format.
+2. Convert it by using for example:
+
+        cat file.yaml |  python -c "import yaml,json,sys; print(json.dumps(yaml.load(sys.stdin)))" > file.json
+
+
+See ``jenkins_analytics/meta/ansible-jenkins-credentials.yaml`` a example
+configuration file format.
 
 Known issues
 ------------
 
 1. SSH keys without password don't work.
 2. This playbook should have been a module: ``_execute_ansible_cli.yaml``
-3. We drop snakeyaml.jar to jdk lib folder. Snakeyaml is used by
-``addCredentials.groovy``, ideally we should just convert
-  yaml to json and use native json libraries to set credentials
-4. We shouldn't delete seed job every time, just check if it is already on
+3. We shouldn't delete seed job every time, just check if it is already on
  server and if it's the case change it.
-5. Anonymous user has discover and get job permission, as without it
+4. Anonymous user has discover and get job permission, as without it
   ``get-job``, ``build <<job>>`` commands wouldn't work.
   Giving anonymous these permissions a workaround for
   transient Jenkins issue (reported [couple][1] [of][2] [times][3]).
-6. We force unix authentication method --- that is every user that can login
+5. We force unix authentication method --- that is every user that can login
   to Jenkins also needs to have a shell account on master.
-7. Password credenitals was not tested yet :)
+6. Password creds were not tested yet :)
 
 Dependencies
 ------------
