@@ -43,7 +43,7 @@
     <permission>hudson.scm.SCM.Tag:jenkins</permission>
   </authorizationStrategy>
   <securityRealm class="hudson.security.PAMSecurityRealm" plugin="pam-auth@1.2">
-    <serviceName>{{jenkins_auth_realm.service}}</serviceName>
+    <serviceName>{{ jenkins_auth_realm.service }}</serviceName>
   </securityRealm>
   {% endif %}
   <disableRememberMe>false</disableRememberMe>

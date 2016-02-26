@@ -45,11 +45,14 @@ boolean addSSHUserPrivateKey(scope, id, username, privateKey, passphrase, descri
 }
 
 def jsonSlurper = new JsonSlurper()
-def d = jsonSlurper.parse(new FileReader(new File("{{jenkins_credentials_file_dest}}")))
+def d = jsonSlurper.parse(new FileReader(new File("{{ jenkins_credentials_file_dest }}")))
 
 d.credentials.each { cred ->
 
-    //def scope = "GLOBAL"
+    if (cred.scope != "GLOBAL"){
+        throw new RuntimeException("Sorry for now only global scope is supported");
+    }
+
     scope = CredentialsScope.valueOf(cred.scope)
 
     def provider = SystemCredentialsProvider.getInstance();

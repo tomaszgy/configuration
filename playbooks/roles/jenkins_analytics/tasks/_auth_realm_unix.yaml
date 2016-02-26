@@ -1,26 +1,20 @@
 ---
+
 - fail: msg=included unix realm by accident
   when: jenkins_auth_realm.name != "unix"
-# Ansible won't allow me to just add user to a group, I can recreate user
-# from scratch. However I'd rather not override jenkins_master configuration
-# here, so these two scrips check just add shadow to jenkins user.
-- shell: groups {{ jenkins_user }} | grep shadow
-  ignore_errors: yes
-  register: out
-  changed_when: false
-- command: adduser {{ jenkins_user }}  shadow
-  when: out.rc != 0
+
+- user:
+    name={{ jenkins_user }}
+    groups=shadow
+    append=yes
+    password={{ jenkins_auth_realm.crypted_password }}
+    update_password=always
   notify: restart Jenkins
-# As above: I just want to set password for user, not touching rest of
-# config
-- shell: cat /etc/shadow | grep '{{ jenkins_user }}:{{ jenkins_auth_realm.crypted_password }}'
-  ignore_errors: yes
-  changed_when: false
-  register: out
-- command: usermod --password {{ jenkins_auth_realm.crypted_password }} {{ jenkins_user }}
-  when: out.rc != 0
-  notify: restart Jenkins
+
 - name: template config.xml
-  template: src=jenkins.config.main.xml dest={{ jenkins_home }}/config.xml
-            owner={{ jenkins_user }} group={{ jenkins_group }}
+  template:
+    src=jenkins.config.main.xml
+    dest={{ jenkins_home }}/config.xml
+    owner={{ jenkins_user }}
+    group={{ jenkins_group }}
   notify: restart Jenkins
