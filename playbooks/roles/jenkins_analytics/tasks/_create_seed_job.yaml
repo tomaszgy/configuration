@@ -6,14 +6,26 @@
 - name: make job absent from server
   include: _execute_ansible_cli.yaml
   vars:
-    jenkins_command_string: "delete-job {{job_name}}"
-# Jenkins complains when there is no such job, so we'll ignore any errors
+    jenkins_command_string: "get-job {{job_name}}"
     jenkins_ignore_cli_errors: yes
+
+- set_fact:
+    get_job_output: "{{ jenkins_command_output }}"
+- debug: var=jenkins_command_output
 - name: create a seed job
+
   include: _execute_ansible_cli.yaml
   vars:
     jenkins_command_string: "create-job {{job_name}}"
     jenkins_command_prefix: "cat /tmp/{{job_name}} | "
+  when: get_job_output.rc != 0
+
+- name: create a seed job
+  include: _execute_ansible_cli.yaml
+  vars:
+    jenkins_command_string: "update-job {{job_name}}"
+    jenkins_command_prefix: "cat /tmp/{{job_name}} | "
+  when: get_job_output.rc == 0
 
 - name: Build the seed job
   include: _execute_ansible_cli.yaml

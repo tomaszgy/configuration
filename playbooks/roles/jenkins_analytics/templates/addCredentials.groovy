@@ -3,7 +3,7 @@
  *
  * java -jar /var/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 groovy addCredentials.groovy
  *
- * For a given yaml file, it will create credential in a Jenkins instance.  The script can be run safely
+ * For a given json file, it will create credential in a Jenkins instance.  The script can be run safely
  * multiple times and it will update a credential.
  *
  * This is useful in conjunction with the job-dsl to bootstrap an barebones Jenkins instance.
@@ -13,11 +13,14 @@
  * credentials-plugin
  * credentials-ssh-plugin
  *
- * snakeyaml is also required.
- *
  * TODO: Deleting credentials is not currently supported.
  */
 
+
+import com.cloudbees.plugins.credentials.Credentials
+import com.cloudbees.plugins.credentials.CredentialsScope
+import com.cloudbees.plugins.credentials.common.IdCredentials
+import com.cloudbees.plugins.credentials.domains.Domain
 import hudson.model.*
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
@@ -47,7 +50,21 @@ def d = jsonSlurper.parse(new FileReader(new File("{{jenkins_credentials_file_de
 d.credentials.each { cred ->
 
     //def scope = "GLOBAL"
-    scope = com.cloudbees.plugins.credentials.CredentialsScope.valueOf(cred.scope)
+    scope = CredentialsScope.valueOf(cred.scope)
+
+    def provider = SystemCredentialsProvider.getInstance();
+
+    def toRemove = [];
+
+    for (Credentials current_credentials: provider.getCredentials()){
+        if (current_credentials instanceof IdCredentials){
+            if (current_credentials.getId() == cred.id){
+                toRemove.add(current_credentials);
+            }
+        }
+    }
+
+    toRemove.each {curr ->provider.getCredentials().remove(curr)};
 
     if (cred.type == "username-password") {
         addUsernamePassword(scope, cred.id, cred.username, cred.password, cred.description)

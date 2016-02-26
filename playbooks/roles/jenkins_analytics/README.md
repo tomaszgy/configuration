@@ -121,15 +121,13 @@ Known issues
 
 1. SSH keys without password don't work.
 2. This playbook should have been a module: ``_execute_ansible_cli.yaml``
-3. We shouldn't delete seed job every time, just check if it is already on
- server and if it's the case change it.
-4. Anonymous user has discover and get job permission, as without it
+3. Anonymous user has discover and get job permission, as without it
   ``get-job``, ``build <<job>>`` commands wouldn't work.
   Giving anonymous these permissions a workaround for
   transient Jenkins issue (reported [couple][1] [of][2] [times][3]).
-5. We force unix authentication method --- that is every user that can login
+4. We force unix authentication method --- that is every user that can login
   to Jenkins also needs to have a shell account on master.
-6. Password creds were not tested yet :)
+
 
 Dependencies
 ------------
