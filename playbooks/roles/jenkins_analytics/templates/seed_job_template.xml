@@ -57,7 +57,7 @@
       <useWorkspaceAsHome>false</useWorkspaceAsHome>
     </hudson.plugins.gradle.Gradle>
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.43">
-      <targets>{{ job.scm.targed_jobs }}</targets>
+      <targets>{{ job.scm.target_jobs }}</targets>
       <usingScriptText>false</usingScriptText>
       <ignoreExisting>false</ignoreExisting>
       <removedJobAction>{{ job.removed_job_action }}</removedJobAction>

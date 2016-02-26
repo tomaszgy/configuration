@@ -22,7 +22,7 @@ jenkins_seed_job:
     type: git
     url: "git@github.com:edx-ops/edx-jenkins-job-dsl.git"
     credential_id: "github-deploy-key"
-    targed_jobs: "jobs/analytics-edx-jenkins.edx.org/*Jobs.groovy"
+    target_jobs: "jobs/analytics-edx-jenkins.edx.org/*Jobs.groovy"
     additional_classpath: "src/main/groovy"
 
 
