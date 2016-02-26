@@ -1,12 +1,12 @@
 - set_fact:
     temporary
 - name: upload_job_file
-  template: src=seed_job_template.xml dest=/tmp/{{job_name}}
+  template: src=seed_job_template.xml dest=/tmp/{{ job_name }}
             mode="600"
 - name: make job absent from server
   include: _execute_ansible_cli.yaml
   vars:
-    jenkins_command_string: "get-job {{job_name}}"
+    jenkins_command_string: "get-job {{ job_name }}"
     jenkins_ignore_cli_errors: yes
 
 - set_fact:
@@ -16,19 +16,19 @@
 
   include: _execute_ansible_cli.yaml
   vars:
-    jenkins_command_string: "create-job {{job_name}}"
-    jenkins_command_prefix: "cat /tmp/{{job_name}} | "
+    jenkins_command_string: "create-job {{ job_name }}"
+    jenkins_command_prefix: "cat /tmp/{{ job_name }} | "
   when: get_job_output.rc != 0
 
 - name: create a seed job
   include: _execute_ansible_cli.yaml
   vars:
-    jenkins_command_string: "update-job {{job_name}}"
-    jenkins_command_prefix: "cat /tmp/{{job_name}} | "
+    jenkins_command_string: "update-job {{ job_name }}"
+    jenkins_command_prefix: "cat /tmp/{{ job_name }} | "
   when: get_job_output.rc == 0
 
 - name: Build the seed job
   include: _execute_ansible_cli.yaml
   vars:
-    jenkins_command_string: "build {{job_name}} -s"
+    jenkins_command_string: "build {{ job_name }} -s"
     jenkins_command_prefix: "sleep 30 && "

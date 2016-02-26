@@ -8,9 +8,9 @@
     jenkins_cli_jar: "{{ jenkins_cli_root }}/jenkins_cli.jar"
     jenkins_cli_pass: "{{ jenkins_cli_root }}/jenkins_cli_pass"
 - name: create cli dir
-  file: name={{jenkins_cli_root}} state=directory mode="700"
+  file: name={{ jenkins_cli_root }} state=directory mode="700"
 - name: create pass file
-  template: src=jenkins-pass-file dest={{jenkins_cli_pass}} mode="600"
+  template: src=jenkins-pass-file dest={{ jenkins_cli_pass }} mode="600"
 
 - name: Wait for Jenkins to start up before proceeding.
   shell: "curl -D - --silent http://localhost:{{ jenkins_port }}/cli/"
@@ -26,13 +26,13 @@
     dest: "{{ jenkins_cli_jar }}"
 
 - name: login
-  command: java -jar {{jenkins_cli_jar}} -s http://localhost:{{ jenkins_port }}
-           login --username={{jenkins_user}}
+  command: java -jar {{ jenkins_cli_jar }} -s http://localhost:{{ jenkins_port }}
+           login --username={{ jenkins_user }}
            --password-file={{ jenkins_cli_pass }}
 
 - name: execute command
   shell: >
-    {{ jenkins_command_prefix|default('') }} java -jar {{jenkins_cli_jar}} -s http://localhost:{{ jenkins_port }}
+    {{ jenkins_command_prefix|default('') }} java -jar {{ jenkins_cli_jar }} -s http://localhost:{{ jenkins_port }}
     {{ jenkins_command_string }}
   register: jenkins_command_output
   ignore_errors: "{{ jenkins_ignore_cli_errors| default (False) }}"
