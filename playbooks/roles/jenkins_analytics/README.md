@@ -21,8 +21,7 @@ You need to provide a json file containing credentials to be uploaded to server.
 This  file is **a local file** suitable for use in `copy` module.
 The following variable specifies the location of this file:
 
-    jenkins_credentials_file:  files/ansible-jenkins-credentials.json
-
+    jenkins_credentials_file:  ansible-jenkins-credentials.json
 
 Variables used by command waiting on Jenkins start-up after running
 `jenkins_master` role:
@@ -30,13 +29,15 @@ Variables used by command waiting on Jenkins start-up after running
     jenkins_connection_retries: 60
     jenkins_connection_delay: 0.5
 
+### Auth realm
+
 Jenkins auth realm, that is a method used by jenkins to authenticate users.
 Realm type stored in `jenkins_auth_realm.name` variable.
 
 In future we will try enable other auth domains, while
 preserving ability to run cli.
 
-### Unix Realm
+#### Unix Realm
 
 For now only `unix` realm supported -- which requires every user to have a
 shell account on the server.
@@ -73,12 +74,12 @@ attributes:
   This can be either  `DELETE` or`IGNORE`.
 * `scm` Scm object is used to define seed job repository and related settings.
   It has following properties:
-  * `scm.type` As of today it must have value of `git`.
-  * `scm.url` URL for the repository.
-  * `scm.credential_id` Id of credential used to authenticate to the repository.
-  * `scm.target_jobs` A shell glob expression relative to repo selecting
+  * `scm.type`: It must have value of `git`.
+  * `scm.url`: URL for the repository.
+  * `scm.credential_id`: Id of credential used to authenticate to the repository.
+  * `scm.target_jobs`: A shell glob expression relative to repo selecting
     jobs to import.
-  * `scm.additional_classpath` A path relative to repo root, pointing to a
+  * `scm.additional_classpath`: A path relative to repo root, pointing to a
      directory that contains additional groovy scripts used by the seed jobs.
 
 Example scm configuration:
@@ -105,7 +106,7 @@ To generate a proper json credential file I strongly suggest:
 
         cat file.yaml |  python -c "import yaml,json,sys; print(json.dumps(yaml.load(sys.stdin)))" > file.json
 
-Example credential file is here (in yaml` format):
+Example credential file is here (in `yaml` format):
 
     # An example list of credentials to send to server
     # Note for some reason ssh keys without passwords dont work.
