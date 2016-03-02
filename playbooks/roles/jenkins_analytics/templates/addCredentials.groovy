@@ -74,6 +74,11 @@ d.credentials.each { cred ->
     }
 
     if (cred.type == "ssh-private-key") {
+
+        if (cred.passphrase == null || cred.passphrase.trim().length() == 0){
+            throw new RuntimeException("Sorry private keys without passphrase are not supported");
+        }
+
         addSSHUserPrivateKey(scope, cred.id, cred.username, cred.privatekey, cred.passphrase, cred.description)
     }
 }
