@@ -10,7 +10,7 @@
     name: "{{ jenkins_user }}"
     groups: shadow
     append: yes
-    password: "{{ jenkins_auth_realm.crypted_password }}"
+    password: "{{ jenkins_auth_realm.hashed_password }}"
     update_password: always
   notify: restart Jenkins
 

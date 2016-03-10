@@ -19,10 +19,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   unless ENV['VAGRANT_JENKINS_LOCAL_VARS_FILE']
-    raise 'Please set VAGRANT_JENKINS_LOCAL_VARS_FILE enviorment varible, '\
-          'that variable should point to a file containing variable '\
+    raise 'Please set VAGRANT_JENKINS_LOCAL_VARS_FILE environment variable. '\
+          'That variable should point to a file containing variable '\
           'overrides for analytics_jenkins role. For required overrides '\
-          'see README.md in the analytics_jenkins role folder'
+          'see README.md in the analytics_jenkins role folder.'
   end
 
   config.vm.provision :ansible do |ansible|
