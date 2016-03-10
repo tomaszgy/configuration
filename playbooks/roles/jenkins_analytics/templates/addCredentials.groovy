@@ -44,10 +44,16 @@ boolean addSSHUserPrivateKey(scope, id, username, privateKey, passphrase, descri
     return true
 }
 
-def jsonSlurper = new JsonSlurper()
-def d = jsonSlurper.parse(new FileReader(new File("{{ jenkins_credentials_file_dest }}")))
+def jsonFile = new File("{{ jenkins_credentials_file_dest }}");
 
-d.credentials.each { cred ->
+if (!jsonFile.exists()){
+    throw RuntimeException("Credentials file does not exist on remote host");
+}
+
+def jsonSlurper = new JsonSlurper()
+def d = jsonSlurper.parse(new FileReader(jsonFile))
+
+d.each { cred ->
 
     if (cred.scope != "GLOBAL"){
         throw new RuntimeException("Sorry for now only global scope is supported");
@@ -75,8 +81,8 @@ d.credentials.each { cred ->
 
     if (cred.type == "ssh-private-key") {
 
-        if (cred.passphrase == null || cred.passphrase.trim().length() == 0){
-            throw new RuntimeException("Sorry private keys without passphrase are not supported");
+        if (cred.passphrase != null && cred.passphrase.trim().length() == 0){
+            cred.passphrase = null;
         }
 
         addSSHUserPrivateKey(scope, cred.id, cred.username, cred.privatekey, cred.passphrase, cred.description)

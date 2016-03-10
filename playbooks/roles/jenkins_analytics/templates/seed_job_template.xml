@@ -16,7 +16,7 @@
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
         <url>{{ job.scm.url}}</url>
-        {% if job.scm.credential_id %}
+        {% if job.scm.credential_id is defined and job.scm.credential_id %}
         <credentialsId>{{ job.scm.credential_id }}</credentialsId>
         {% endif %}
       </hudson.plugins.git.UserRemoteConfig>

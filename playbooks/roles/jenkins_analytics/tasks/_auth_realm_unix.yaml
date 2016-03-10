@@ -3,6 +3,9 @@
 - fail: msg=included unix realm by accident
   when: jenkins_auth_realm.name != "unix"
 
+- fail: msg=Please change default password for jenkins user
+  when: jenkins_auth_realm.plain_password == 'jenkins'
+
 - user:
     name: "{{ jenkins_user }}"
     groups: shadow
