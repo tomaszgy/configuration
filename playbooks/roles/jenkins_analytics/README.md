@@ -94,6 +94,12 @@ Examples of credentials variables:
           Key contents
           -----END RSA PRIVATE KEY-----
 
+#### Other useful variables
+
+* `JENKINS_ANALYTICS_CONCURRENT_JOBS_COUNT`: Configures number of 
+  executors (or concurrent jobs this Jenkins instance can 
+  execute). Defaults to `2`. 
+
 ### General configuration 
 
 Following variables are used by this role:
