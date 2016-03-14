@@ -33,13 +33,18 @@
     /sbin/ifconfig eth0 mtu 1500 up
   when: ansible_distribution in common_debian_variants
 
-- lineinfile: >
-    dest=/etc/dhcp/dhclient.conf
-    regexp="^supercede interfact-mtu"
-    line="supercede interface-mtu 1500;"
-    insertbefore="^request"
+- name: check for eth0.cfg
+  stat: path=/etc/network/interfaces.d/eth0.cfg
+  register: eth0_cfg
   when: ansible_distribution in common_debian_variants
-  
+
+- lineinfile: >
+    dest=/etc/network/interfaces.d/eth0.cfg
+    regexp="^post-up /sbin/ifconfig eth0 mtu 1500"
+    line="post-up /sbin/ifconfig eth0 mtu 1500"
+    insertafter="^iface"
+  when: ansible_distribution in common_debian_variants and eth0_cfg.stat.exists
+
 #
 # End dealing with Jumbo frames issue in mixed MTU deployements in AWS
 #
@@ -64,23 +69,6 @@
     name="{{ item }}" state=present
     extra_args="-i {{ COMMON_PYPI_MIRROR_URL }}"
   with_items: aws_pip_pkgs
-
-- name: get s3cmd
-  get_url: >
-    url={{ aws_s3cmd_url }}
-    dest={{ aws_dirs.data.path }}/
-
-- name: untar s3cmd
-  shell: >
-    tar xf {{ aws_dirs.data.path }}/{{ aws_s3cmd_version }}.tar.gz
-    creates={{ aws_dirs.data.path }}/{{ aws_s3cmd_version }}/s3cmd
-    chdir={{ aws_dirs.home.path }}
-
-- name: create symlink for s3cmd
-  file: >
-    src={{ aws_dirs.home.path }}/{{ aws_s3cmd_version }}/s3cmd
-    dest={{ aws_s3cmd }}
-    state=link
 
 - name: create s3 log sync script
   template: >

@@ -30,8 +30,6 @@
     ATOMIC_REQUESTS: true
     CONN_MAX_AGE: 60
 
-{{ role_name|upper }}_DB_ADMIN_USER: 'root'
-{{ role_name|upper }}_DB_ADMIN_PASSWORD: ''
 
 {{ role_name|upper }}_MEMCACHE: [ 'memcache' ]
 
@@ -73,6 +71,7 @@
   DATABASE_OPTIONS:
     connect_timeout: 10
   DATABASES: '{{ '{{' }} {{ role_name|upper }}_DATABASES }}'
+  CACHES: '{{ '{{' }} {{ role_name|upper }}_CACHES }}'
 
   PLATFORM_NAME: '{{ '{{' }} {{ role_name|upper }}_PLATFORM_NAME }}'
 

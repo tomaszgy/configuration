@@ -30,6 +30,7 @@
 - name: install application requirements
   pip:
     requirements: "{{ programs_requirements_base }}/{{ item }}"
+    # Ansible will initialize this virtualenv if it's missing.
     virtualenv: "{{ programs_venv_dir }}"
     state: present
   sudo_user: "{{ programs_user }}"
@@ -44,6 +45,7 @@
 - name: install node dependencies
   npm: executable={{ programs_nodeenv_bin }}/npm path={{ programs_code_dir }} production=yes
   sudo_user: "{{ programs_user }}"
+  environment: "{{ programs_environment }}"
 
 - name: install bower dependencies
   shell: >
@@ -64,7 +66,7 @@
 - name: compile sass
   shell: >
     chdir={{ programs_code_dir }}
-    . {{ programs_nodeenv_bin }}/activate && npm rebuild node-sass && {{ programs_node_bin }}/gulp css
+    . {{ programs_nodeenv_bin }}/activate && {{ programs_node_bin }}/gulp css
   sudo_user: "{{ programs_user }}"
   when: not devstack
 

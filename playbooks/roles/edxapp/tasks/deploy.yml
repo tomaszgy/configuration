@@ -6,7 +6,7 @@
   tags:
     - install
     - install:configuration
-    
+
 - name: create edxapp configuration dir
   file: >
     path="{{ EDXAPP_CFG_DIR }}" state=directory
@@ -14,7 +14,18 @@
   tags:
     - install
     - install:configuration
-    
+
+- name: setup the newrelic python agent config
+  template:
+    src: "newrelic.ini.j2"
+    dest: "{{ edxapp_app_dir }}/newrelic.ini"
+    owner: "{{ edxapp_user }}"
+    group: "{{ common_web_user }}"
+    mode: "0644"
+  tags:
+    - install
+    - install:configuration
+
 # Optional auth for git
 - name: create ssh script for git (not authenticated)
   template: >
@@ -24,7 +35,7 @@
   tags:
     - install
     - install:base
-  
+
 - name: create ssh script for git (authenticated)
   template: >
     src=git_ssh_auth.sh.j2 dest={{ edxapp_git_ssh }}
@@ -72,13 +83,38 @@
     - install
     - install:code
 
-- name: checkout theme
+# edX supports two theme types, Comprehensive themes and the older
+# Stanford-style themes. They are mutually exclusive.
+#
+# To enable Stanford theming, point edxapp_theme_source_repo
+# (yes, lowercase) to a Stanford-style theme and set
+# edxapp_theme_name (again, lowercase) to its name.
+- name: checkout Stanford-style theme
   git: >
     dest={{ edxapp_app_dir }}/themes/{{ edxapp_theme_name }}
     repo={{ edxapp_theme_source_repo }}
     version={{ edxapp_theme_version }}
     accept_hostkey=yes
   when: edxapp_theme_name != ''
+  sudo_user: "{{ edxapp_user }}"
+  environment:
+    GIT_SSH: "{{ edxapp_git_ssh }}"
+  register: edxapp_theme_checkout
+  tags:
+    - install
+    - install:code
+
+# To enable Comprehensive theming, point
+# EDXAPP_COMPREHENSIVE_THEME_SOURCE_REPO to your theme repo, and set
+# EDXAPP_COMPREHENSIVE_THEME_DIR to the directory you want to check
+# out to.
+- name: checkout comprehensive theme
+  git: >
+    dest={{ EDXAPP_COMPREHENSIVE_THEME_DIR }}
+    repo={{ EDXAPP_COMPREHENSIVE_THEME_SOURCE_REPO }}
+    version={{ EDXAPP_COMPREHENSIVE_THEME_VERSION }}
+    accept_hostkey=yes
+  when: EDXAPP_COMPREHENSIVE_THEME_SOURCE_REPO != ''
   sudo_user: "{{ edxapp_user }}"
   environment:
     GIT_SSH: "{{ edxapp_git_ssh }}"
@@ -107,29 +143,6 @@
   tags:
     - install
     - install:code
-    - install:app-requirements
-
-# Ruby plays that need to be run after platform updates.
-- name: gem install bundler
-  shell: >
-    gem install bundle
-    chdir={{ edxapp_code_dir }}
-    executable=/bin/bash
-  environment: "{{ edxapp_environment }}"
-  sudo_user: "{{ edxapp_user }}"
-  tags:
-    - install
-    - install:app-requirements
-
-- name: bundle install
-  shell: >
-    bundle install --binstubs
-    chdir={{ edxapp_code_dir }}
-    executable=/bin/bash
-  sudo_user: "{{ edxapp_user }}"
-  environment: "{{ edxapp_environment }}"
-  tags:
-    - install
     - install:app-requirements
 
 # Set the npm registry
@@ -187,7 +200,7 @@
   # requirements are pathed relative to the edx-platform repo. Using the pip from inside the virtual environment implicitly
   # installs everything into that virtual environment.
   command: >
-    {{ edxapp_venv_dir }}/bin/pip install -i {{ COMMON_PYPI_MIRROR_URL }} --exists-action w -r {{ item.item }}
+    {{ edxapp_venv_dir }}/bin/pip install {{ COMMON_PIP_VERBOSITY }} -i {{ COMMON_PYPI_MIRROR_URL }} --exists-action w -r {{ item.item }}
     chdir={{ edxapp_code_dir }}
   sudo_user: "{{ edxapp_user }}"
   environment: "{{ edxapp_environment }}"
@@ -204,7 +217,7 @@
   # requirements are pathed relative to the edx-platform repo. Using the pip from inside the virtual environment implicitly
   # installs everything into that virtual environment.
   shell: >
-    {{ edxapp_venv_dir }}/bin/pip install -i {{ COMMON_PYPI_MIRROR_URL }} --exists-action w -r {{ item }}
+    {{ edxapp_venv_dir }}/bin/pip install {{ COMMON_PIP_VERBOSITY }} -i {{ COMMON_PYPI_MIRROR_URL }} --exists-action w -r {{ item }}
     chdir={{ edxapp_code_dir }}
   with_items:
   - "{{ private_requirements_file }}"
@@ -229,7 +242,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # If using CAS and you have a function for mapping attributes, install
 # the module here.  The next few tasks set up the python code sandbox
 - name: install CAS attribute module
@@ -243,14 +256,14 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # Install the sandbox python modules into {{ edxapp_venv_dir }}
 - name : install sandbox requirements into regular venv
   # Need to use shell rather than pip so that we can maintain the context of our current working directory; some
   # requirements are pathed relative to the edx-platform repo. Using the pip from inside the virtual environment implicitly
   # installs everything into that virtual environment.
   shell: >
-    {{ edxapp_venv_dir }}/bin/pip install -i {{ COMMON_PYPI_MIRROR_URL }} --exists-action w -r {{ item }}
+    {{ edxapp_venv_dir }}/bin/pip install {{ COMMON_PIP_VERBOSITY }} -i {{ COMMON_PYPI_MIRROR_URL }} --exists-action w -r {{ item }}
     chdir={{ edxapp_code_dir }}
   with_items:
   - "{{ sandbox_base_requirements }}"
@@ -261,7 +274,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # The next few tasks set up the python code sandbox
 
 # need to disable this profile, otherwise the pip inside the sandbox venv has no permissions
@@ -317,7 +330,7 @@
   tags:
     - install
     - install:code
-  
+
   # alternative would be to give {{ common_web_user }} read access
   # to the virtualenv but that permission change will require
   # root access.
@@ -327,17 +340,6 @@
     - install
     - install:code
 
-# https://code.launchpad.net/~wligtenberg/django-openid-auth/mysql_fix/+merge/22726
-# This is necessary for when syncdb is run and the django_openid_auth module is installed,
-# not sure if this fix will ever get merged
-- name: openid workaround
-  shell: sed -i -e 's/claimed_id = models.TextField(max_length=2047, unique=True/claimed_id = models.TextField(max_length=2047/' {{ edxapp_venv_dir }}/lib/python2.7/site-packages/django_openid_auth/models.py
-  when: openid_workaround is defined
-  sudo_user: "{{ edxapp_user }}"
-  tags:
-    - install
-    - install:code
-  
 # creates the supervisor jobs for the
 # service variants configured, runs
 # gather_assets and db migrations
@@ -365,21 +367,19 @@
     state=started
     supervisorctl_path={{ supervisor_ctl }}
     config={{ supervisor_cfg }}
-    name="edxapp:{{ item }}"
+    name="edxapp:"
   sudo_user: "{{ supervisor_service_user }}"
   when: celery_worker is not defined and not disable_edx_services
-  with_items: service_variants_enabled
   tags:
     - manage
 
 - name: ensure edxapp_workers has started
   supervisorctl: >
-    name="edxapp_worker:{{ item.service_variant }}_{{ item.queue }}_{{ item.concurrency }}"
+    name="edxapp_worker:"
     supervisorctl_path={{ supervisor_ctl }}
     config={{ supervisor_cfg }}
     state=started
   when: celery_worker is defined and not disable_edx_services
-  with_items: edxapp_workers
   sudo_user: "{{ supervisor_service_user }}"
   tags:
     - manage
@@ -415,7 +415,7 @@
     - install
     - install:configuration
     - install:code
-  
+
 - include: tag_ec2.yml tags=deploy
   when: COMMON_TAG_EC2_INSTANCE
   tags:
@@ -429,21 +429,19 @@
     state=restarted
     supervisorctl_path={{ supervisor_ctl }}
     config={{ supervisor_cfg }}
-    name="edxapp:{{ item }}"
+    name="edxapp:"
   when: edxapp_installed is defined and celery_worker is not defined and not disable_edx_services
   sudo_user: "{{ supervisor_service_user }}"
-  with_items: service_variants_enabled
   tags:
     - manage
 
 - name: restart edxapp_workers
   supervisorctl: >
-    name="edxapp_worker:{{ item.service_variant }}_{{ item.queue }}_{{ item.concurrency }}"
+    name="edxapp_worker:"
     supervisorctl_path={{ supervisor_ctl }}
     config={{ supervisor_cfg }}
     state=restarted
   when: edxapp_installed is defined and celery_worker is defined and not disable_edx_services
-  with_items: edxapp_workers
   sudo_user: "{{ common_web_user }}"
   tags:
     - manage
