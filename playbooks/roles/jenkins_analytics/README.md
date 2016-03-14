@@ -21,7 +21,7 @@ all required variables from this section.
 This file needs to contain, at least, the following variables 
 (see the next few sections for more information about them): 
 
-* `JENKINS_ANALYTICS_USER_PASSWORD_CRYPTED` 
+* `JENKINS_ANALYTICS_USER_PASSWORD_HASHED` 
 * `JENKINS_ANALYTICS_USER_PASSWORD_PLAIN`
 * `JENKINS_ANALYTICS_GITHUB_KEY` or `JENKINS_ANALYTICS_CREDENTIALS`
 
