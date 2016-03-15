@@ -374,11 +374,7 @@
     - manage
 
 - name: ensure edxapp_workers has started
-  supervisorctl: >
-    name="edxapp_worker:"
-    supervisorctl_path={{ supervisor_ctl }}
-    config={{ supervisor_cfg }}
-    state=started
+  shell: "{{ supervisor_ctl }} start edxapp:"
   when: celery_worker is defined and not disable_edx_services
   sudo_user: "{{ supervisor_service_user }}"
   tags:
