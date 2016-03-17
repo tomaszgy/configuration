@@ -1,5 +1,5 @@
-
-- name: upload_job_file
+---
+- name: upload job file
   template: src=seed_job_template.xml dest=/tmp/{{ job_name }} mode="600"
 
 - name: check if job is present

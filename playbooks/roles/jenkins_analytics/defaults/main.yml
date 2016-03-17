@@ -26,8 +26,6 @@ jenkins_auth_realm:
   plain_password: "{{ JENKINS_ANALYTICS_USER_PASSWORD_PLAIN }}"
   hashed_password: "{{ JENKINS_ANALYTICS_USER_PASSWORD_HASHED }}"
 
-# For now only a single seed job is supported, adding more would require
-# Ansible 2.+ or converting _execute_jenkins_cli to a module
 jenkins_seed_job:
   name: analytics-seed-job
   time_trigger: "H * * * *"

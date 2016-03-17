@@ -50,7 +50,7 @@ For now go with defaults.
 #### Jenkins credentials
 
 Jenkins contains its own credential store. To fill it with credentials, 
-please use `JENKINS_ANALYTICS_CREDENTIALS` variable. This variable 
+please use the `JENKINS_ANALYTICS_CREDENTIALS` variable. This variable 
 is a list of objects, each object representing a single credential.
 For now passwords and ssh-keys are supported. 
 
@@ -61,7 +61,7 @@ authentication to checkout github repositories.
 
 Each credential has an unique id. A given credential 
 is identified by its id, and that id can be used
-by a task to reference a the credential. 
+by a task to reference the credential. 
 
 Examples of credentials variables:
  
@@ -152,14 +152,14 @@ attributes:
 * `name`:  Name of the job in Jenkins.
 * `time_trigger`: A Jenkins cron entry defining how often this job should ran.
 * `removed_job_action`: what to do when a job created by a previous run of seed job
-  is missing from current run. This can be either  `DELETE` or`IGNORE`.
+  is missing from current run. This can be either `DELETE` or`IGNORE`.
 * `removed_view_action`: what to do when a view created by a previous run of seed job
-  is missing from current run. This can be either  `DELETE` or`IGNORE`.
+  is missing from current run. This can be either `DELETE` or`IGNORE`.
 * `scm`: Scm object is used to define seed job repository and related settings.
   It has the following properties:
   * `scm.type`: It must have value of `git`.
   * `scm.url`: URL for the repository.
-  * `scm.credential_id`: Id of a credential to use when authenticating to 
+  * `scm.credential_id`: Id of a credential to use when authenticating to the
     repository.     
     This setting is optional. If it is missing or falsy, credentials will be omitted. 
     Please note that when you use ssh repository url, you'll need to set up a key regardless 
@@ -187,7 +187,7 @@ Example scm configuration:
 Known issues
 ------------
 
-1. Playbook named `_execute_ansible_cli.yaml`, should be converted to an
+1. Playbook named `execute_ansible_cli.yaml`, should be converted to an
    Ansible module (it is already used in a module-ish way).
 2. Anonymous user has discover and get job permission, as without it
    `get-job`, `build <<job>>` commands wouldn't work.
