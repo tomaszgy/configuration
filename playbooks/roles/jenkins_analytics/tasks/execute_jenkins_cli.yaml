@@ -44,8 +44,8 @@
   register: jenkins_command_output
   ignore_errors: "{{ jenkins_ignore_cli_errors|default (False) }}"
 
-- name: clean up
+- name: "clean up --- remove the credentials dir"
   file: name=jenkins_cli_root state=absent
 
-- name: clean up
+- name: "clean up --- remove cached Jenkins credentials"
   command: rm -rf $HOME/.jenkins
