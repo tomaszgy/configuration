@@ -30,7 +30,6 @@ boolean addUsernamePassword(scope, id, username, password, description) {
     provider = SystemCredentialsProvider.getInstance()
     provider.getCredentials().add(new UsernamePasswordCredentialsImpl(scope, id, description, username, password))
     provider.save()
-    println scope
     return true
 }
 
@@ -39,7 +38,6 @@ boolean addSSHUserPrivateKey(scope, id, username, privateKey, passphrase, descri
     source = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(privateKey)
     provider.getCredentials().add(new BasicSSHUserPrivateKey(scope, id, username, source, passphrase, description))
     provider.save()
-    println scope
     return true
 }
 
