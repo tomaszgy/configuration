@@ -79,8 +79,6 @@
     requirements="{{ xqueue_openstack_requirements_file }}" virtualenv="{{ xqueue_venv_dir }}" state=present
     extra_args="-i {{ COMMON_PYPI_MIRROR_URL }} --exists-action w"
   sudo_user: "{{ xqueue_user }}"
-  notify:
-    - restart xqueue
   when: XQUEUE_SETTINGS == 'openstack_settings'
   tags:
     - install
