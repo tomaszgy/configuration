@@ -1,18 +1,16 @@
 ---
-# Jenkins is started by the trigger of jenkins_master job, which trigger
-# is executed after whole playbook. Since we expect Jenkins running
-# force it to be started now
-
-- name: start jenkins now
-  service: name=jenkins state=started
-
 - include: _auth_realm.yaml
 
-- include: _add_credentials.yaml
+# Unconditionally restart jenkins, this has two side-effects:
+# 1. Jenkins uses new auth realm
+# 2. We guarantee that jenkins is started (this is not certain
+#    as Jenkins is started by handlers from jenkins_master,
+#    these handlers are launched after this role.
 
-# Changing the Jenkins credentials could require jenkins being restarted before
-# CLI works, so if any change was needed flush it now
-- meta: flush_handlers
+- name: restart Jenkins
+  service: name=jenkins state=restarted
+
+- include: _add_credentials.yaml
 
 - name: create seed job
   include: _create_seed_job.yaml
