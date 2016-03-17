@@ -29,10 +29,10 @@
 - name: restart Jenkins
   service: name=jenkins state=restarted
 
-- include: _add_credentials.yaml
+- include: add_credentials.yaml
 
 - name: create seed job
-  include: _create_seed_job.yaml
+  include: create_seed_job.yaml
   vars:
     job_name: "{{ jenkins_seed_job.name }}"
     job: "{{ jenkins_seed_job }}"
