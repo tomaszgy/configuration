@@ -59,9 +59,8 @@ you can override `JENKINS_ANALYTICS_GITHUB_KEY`,
 which should contain contents of private key used for 
 authentication to checkout github repositories.  
 
-Each credential has an unique id. A given credential 
-is identified by its id, and that id can be used
-by a task to reference the credential. 
+Each credential has a unique ID, which is used to match 
+the credential to the task(s) for which it is needed
 
 Examples of credentials variables:
  
