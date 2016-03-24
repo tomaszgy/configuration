@@ -10,44 +10,61 @@
       <useJobPriority>false</useJobPriority>
       <priority>-1</priority>
     </jenkins.advancedqueue.AdvancedQueueSorterJobProperty>
+    <hudson.model.ParametersDefinitionProperty>
+        <parameterDefinitions>
+            {% for param in item.parameters %}
+            <hudson.plugins.global__variable__string__parameter.GlobalVariableStringParameterDefinition>
+                <name>{{ param.name }}</name>
+                <defaultValue>{{ param.value | default('') }}</defaultValue>
+                <description>{{ param.description | default('') }}</description>
+            </hudson.plugins.global__variable__string__parameter.GlobalVariableStringParameterDefinition>
+            {% endfor %}
+        </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
-    <configVersion>2</configVersion>
-    <userRemoteConfigs>
-      <hudson.plugins.git.UserRemoteConfig>
-        <url>{{ jenkins_seed_job.scm.url}}</url>
-        {% if jenkins_seed_job.scm.credential_id is defined and jenkins_seed_job.scm.credential_id %}
-        <credentialsId>{{ jenkins_seed_job.scm.credential_id }}</credentialsId>
+  <scm class='org.jenkinsci.plugins.multiplescms.MultiSCM'>
+    <scms>
+    {% for scm in item.multiscm %}
+      {% if scm.url %}
+      <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <url>{{ scm.url }}</url>
+            {% if scm.credential_id %}
+            <credentialsId>{{ scm.credential_id }}</credentialsId>
+            {% endif %}
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>{{ scm.branch }}</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        {% if scm.dest %}
+        <relativeTargetDir>{{ scm.dest }}</relativeTargetDir>
         {% endif %}
-      </hudson.plugins.git.UserRemoteConfig>
-    </userRemoteConfigs>
-    <branches>
-      <hudson.plugins.git.BranchSpec>
-        <name>master</name>
-      </hudson.plugins.git.BranchSpec>
-    </branches>
-    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <browser class="hudson.plugins.git.browser.AssemblaWeb">
-      <url></url>
-    </browser>
-    <submoduleCfg class="list"/>
-    <extensions/>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <browser class="hudson.plugins.git.browser.AssemblaWeb">
+          <url></url>
+        </browser>
+        <submoduleCfg class="list"/>
+        <extensions/>
+      </scm>
+      {% endif %}
+    {% endfor %}
+    </scms>
   </scm>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec>{{ jenkins_seed_job.time_trigger }}</spec>
-    </hudson.triggers.TimerTrigger>
-  </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.plugins.gradle.Gradle plugin="gradle@1.24">
       <description></description>
       <switches></switches>
-      <tasks>clean test</tasks>
+      <tasks>{{ item.dsl.gradle_tasks }}</tasks>
       <rootBuildScriptDir></rootBuildScriptDir>
       <buildFile></buildFile>
       <gradleName>(x)</gradleName>
@@ -57,13 +74,13 @@
       <useWorkspaceAsHome>false</useWorkspaceAsHome>
     </hudson.plugins.gradle.Gradle>
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.43">
-      <targets>{{ jenkins_seed_job.scm.target_jobs }}</targets>
+      <targets>{{ item.dsl.target_jobs }}</targets>
       <usingScriptText>false</usingScriptText>
       <ignoreExisting>false</ignoreExisting>
-      <removedJobAction>{{ jenkins_seed_job.removed_job_action }}</removedJobAction>
-      <removedViewAction>{{ jenkins_seed_job.removed_view_action }}</removedViewAction>
-      <lookupStrategy>JENKINS_ROOT</lookupStrategy>
-      <additionalClasspath>{{ jenkins_seed_job.scm.additional_classpath }}</additionalClasspath>
+      <removedJobAction>{{ item.dsl.removed_job_action }}</removedJobAction>
+      <removedViewAction>{{ item.dsl.removed_view_action }}</removedViewAction>
+      <lookupStrategy>SEED_JOB</lookupStrategy>
+      <additionalClasspath>{{ item.dsl.additional_classpath }}</additionalClasspath>
     </javaposse.jobdsl.plugin.ExecuteDslScripts>
   </builders>
   <publishers/>
