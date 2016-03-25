@@ -23,7 +23,7 @@ This file needs to contain, at least, the following variables
 
 * `JENKINS_ANALYTICS_USER_PASSWORD_HASHED` 
 * `JENKINS_ANALYTICS_USER_PASSWORD_PLAIN`
-* `JENKINS_ANALYTICS_GITHUB_KEY` or `JENKINS_ANALYTICS_CREDENTIALS`
+* `JENKINS_ANALYTICS_GITHUB_CREDENTIAL_ID` or `JENKINS_ANALYTICS_CREDENTIALS`
 
  
 ### End-user editable configuration 
@@ -44,8 +44,78 @@ in Ansible.)
 
 #### Jenkins seed job configuration 
 
-This will be filled as part of PR[#2830](https://github.com/edx/configuration/pull/2830). 
-For now go with defaults. 
+This role creates a seed job in Jenkins for every enabled analytics task.  By
+default, 5 analytics tasks are enabled:
+
+* AnswerDistributionWorkflow, enabled by `ANALYTICS_SCHEDULE_ANSWER_DISTRIBUTION`
+* ImportEnrollmentsIntoMysql, enabled by `ANALYTICS_SCHEDULE_IMPORT_ENROLLMENTS_INTO_MYSQL`
+* CourseActivityWeeklyTask, enabled by `ANALYTICS_SCHEDULE_COURSE_ACTIVITY_WEEKLY`
+* InsertToMysqlAllVideoTask, enabled by `ANALYTICS_SCHEDULE_INSERT_TO_MYSQL_ALL_VIDEO`
+* InsertToMysqlCourseEnrollByCountryWorkflow, enabled by `ANALYTICS_SCHEDULE_INSERT_TO_MYSQL_COURSE_ENROLL_BY_COUNTRY`
+
+Each seed task clones the job-dsl repo, and an optional secure repo.
+
+**Note:** There are two ways to specify a ssl-based github repo URL.  Note the
+subtle difference in the paths: `github.com:your-org` vs. `github.com/your-org`.
+
+* git@github.com:your-org/private-repo.git ✓ 
+* ssh://git@github.com/your-org/private-repo.git ✓ 
+
+*Not like this:*
+
+* git@github.com/your-org/private-repo.git ❌ 
+* ssh://git@github.com:your-org/private-repo.git ❌ 
+
+##### Job DSL repo
+
+The Job DSL repo is defined by these variables.
+
+  `ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL`: "git@github.com:edx-ops/edx-jenkins-job-dsl.git"
+  `ANALYTICS_SCHEDULE_JOBS_DSL_REPO_VERSION`: "master"
+  `ANALYTICS_SCHEDULE_JOBS_DSL_REPO_CREDENTIAL_ID`: "{{ `JENKINS_ANALYTICS_GITHUB_CREDENTIAL_ID` }}"
+
+The Job DSL repo is expected to contain:
+
+  * `jobs/analytics-edx-jenkins.edx.org/*Jobs.groovy`: the seed job DSL
+  * `jobs/analytics-edx-jenkins.edx.org/analyticstasks/*.groovy`: the analytics job DSLs
+
+##### Secure repo
+
+Analytics jobs require configuration that must be kept secure, e.g., ssh
+credentials, EMR details.  Because this configuration must often be passed to
+the EMR instances themselves, it's convenient to store it in a secure repo, and
+share the repo between the seed tasks and the analytics tasks.
+
+If you do not wish to store your analytics configuration in a repo, you can
+configure it by setting the default `ANALYTICS_SCHEDULE_EXTRA_VARS`, or each
+individual task's `ANALYTICS_SCHEDULE_<TASK_NAME>_EXTRA_VARS`.
+
+If you do wish to store your analytics configuration in a repo, set the
+following variables:
+
+* `ANALYTICS_SCHEDULE_SECURE_REPO_URL`: `null`
+* `ANALYTICS_SCHEDULE_SECURE_REPO_DEST`: "analytics-secure-config"
+* `ANALYTICS_SCHEDULE_SECURE_REPO_VERSION`: "master"
+* `ANALYTICS_SCHEDULE_SECURE_REPO_CREDENTIAL_ID`: "{{ `JENKINS_ANALYTICS_GITHUB_CREDENTIAL_ID` }}"
+
+And then set `ANALYTICS_SCHEDULE_EXTRA_VARS`, or each individual task's
+`ANALYTICS_SCHEDULE_<TASK_NAME>_EXTRA_VARS` to point to a file in the secure
+repo.  For example:
+
+        ANALYTICS_SCHEDULE_SECURE_REPO_URL: 'git@github.com:open-craft/analytics-secure-configuration.git'
+        ANALYTICS_SCHEDULE_SECURE_REPO_VERSION: 'client-branch'
+        ANALYTICS_SCHEDULE_EXTRA_VARS: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_DEST }}/analytics-pipeline-vars.yml'
+        ANALYTICS_SCHEDULE_ANSWER_DISTRIBUTION_EXTRA_VARS: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_DEST }}/analytics-pipeline-answer-dist-vars.yml'
+
+##### Analytics task configuration
+
+To set a single configuration for all analytics tasks, use
+`ANALYTICS_SCHEDULE_EXTRA_VARS`.  To specify different configuration for an
+individual task, use `ANALYTICS_SCHEDULE_<TASK_NAME>_EXTRA_VARS`.
+
+The variables to set depend on the job DSLs, which will provide sane defaults
+for as many parameters as possible.  Consult the job DSL README for more
+information.
 
 #### Jenkins credentials
 
@@ -55,7 +125,7 @@ is a list of objects, each object representing a single credential.
 For now passwords and ssh-keys are supported. 
 
 If you only need credentials to access github repositories
-you can override `JENKINS_ANALYTICS_GITHUB_KEY`,
+you can override `JENKINS_ANALYTICS_GITHUB_CREDENTIAL_ID`,
 which should contain contents of private key used for 
 authentication to checkout github repositories.  
 
@@ -64,7 +134,7 @@ the credential to the task(s) for which it is needed
 
 Examples of credentials variables:
  
-    JENKINS_ANALYTICS_GITHUB_KEY: "{{ lookup('file', 'path to keyfile') }}" 
+    JENKINS_ANALYTICS_GITHUB_CREDENTIAL_ID: "{{ lookup('file', 'path to keyfile') }}" 
         
     JENKINS_ANALYTICS_CREDENTIALS:
       # id is a scope-unique credential identifier
@@ -142,46 +212,6 @@ Example realm configuration:
       plain_password: jenkins
       hashed_password: $6$rAVyI.p2wXVDKk5w$y0G1MQehmHtvaPgdtbrnvAsBqYQ99g939vxrdLXtPQCh/e7GJVwbnqIKZpve8EcMLTtq.7sZwTBYV9Tdjgf1k.
 
-
-#### Seed job configuration
-
-Seed job is configured in `jenkins_seed_job` variable, which has the following
-attributes:
-
-* `name`:  Name of the job in Jenkins.
-* `time_trigger`: A Jenkins cron entry defining how often this job should run.
-* `removed_job_action`: what to do when a job created by a previous run of seed job
-  is missing from current run. This can be either `DELETE` or`IGNORE`.
-* `removed_view_action`: what to do when a view created by a previous run of seed job
-  is missing from current run. This can be either `DELETE` or`IGNORE`.
-* `scm`: Scm object is used to define seed job repository and related settings.
-  It has the following properties:
-  * `scm.type`: It must have value of `git`.
-  * `scm.url`: URL for the repository.
-  * `scm.credential_id`: Id of a credential to use when authenticating to the
-    repository.     
-    This setting is optional. If it is missing or falsy, credentials will be omitted. 
-    Please note that when you use ssh repository url, you'll need to set up a key regardless 
-    of whether the repository is public or private (to establish an ssh connection
-    you need a valid public key). 
-  * `scm.target_jobs`: A shell glob expression relative to repo root selecting
-    jobs to import.
-  * `scm.additional_classpath`: A path relative to repo root, pointing to a
-     directory that contains additional groovy scripts used by the seed jobs.
-
-Example scm configuration:
-
-    jenkins_seed_job:
-      name: seed
-      time_trigger: "H * * * *"
-      removed_job_action: "DELETE"
-      removed_view_action: "IGNORE"
-      scm:
-        type: git
-        url: "git@github.com:edx-ops/edx-jenkins-job-dsl.git"
-        credential_id: "github-deploy-key"
-        target_jobs: "jobs/analytics-edx-jenkins.edx.org/*Jobs.groovy"
-        additional_classpath: "src/main/groovy"
 
 Known issues
 ------------

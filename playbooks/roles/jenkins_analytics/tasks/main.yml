@@ -55,53 +55,45 @@
 - name: clean up
   file: name={{ jenkins_credentials_root }} state=absent
 
-# Upload seed job
-
-- name: upload job file
-  template: src=seed_job_template.xml dest=/tmp/{{ item.name }} mode="600"
-  with_items:
-    - "{{ jenkins_seed_job }}"
-  tags:
-    - create-seed-job
-
-- name: check if job is present
-  include: execute_jenkins_cli.yaml
+# Create seed job(s)
+# Would be better as an include with_vars: jenkins_seed_jobs, but deprecated until Ansible 2.0
+- name: create answer_distribution seed job
+  include: create_seed_job.yml
   vars:
-    jenkins_command_string: "get-job {{ jenkins_seed_job.name }}"
-    jenkins_ignore_cli_errors: yes
+    seed_job: "{{ jenkins_seed_jobs.answer_distribution }}"
+  when: jenkins_seed_jobs.answer_distribution.enabled
   tags:
+    - create-answer-distribution-seed-job
     - create-seed-job
 
-- set_fact:
-    get_job_output: "{{ jenkins_command_output }}"
-  tags:
-    - create-seed-job
-
-# Upload seed job to Jenkins
-
-- name: Create seed job if absent
-  include: execute_jenkins_cli.yaml
+- name: create import_enrollments seed job
+  include: create_seed_job.yml
   vars:
-    jenkins_command_string: "create-job {{ jenkins_seed_job.name }}"
-    jenkins_command_prefix: "cat /tmp/{{ jenkins_seed_job.name }} | "
-  when: get_job_output.rc != 0
+    seed_job: "{{ jenkins_seed_jobs.import_enrollments }}"
+  when: jenkins_seed_jobs.import_enrollments.enabled
   tags:
     - create-seed-job
 
-- name: update seed job
-  include: execute_jenkins_cli.yaml
+- name: create course_activity seed job
+  include: create_seed_job.yml
   vars:
-    jenkins_command_string: "update-job {{ jenkins_seed_job.name }}"
-    jenkins_command_prefix: "cat /tmp/{{ jenkins_seed_job.name }} | "
-  when: get_job_output.rc == 0
+    seed_job: "{{ jenkins_seed_jobs.course_activity }}"
+  when: jenkins_seed_jobs.course_activity.enabled
   tags:
     - create-seed-job
 
-# Build the seed job
-
-- name: Build the seed job
-  include: execute_jenkins_cli.yaml
+- name: create all_video seed job
+  include: create_seed_job.yml
   vars:
-    jenkins_command_string: "build {{ jenkins_seed_job.name }} -s"
+    seed_job: "{{ jenkins_seed_jobs.all_video }}"
+  when: jenkins_seed_jobs.all_video.enabled
+  tags:
+    - create-seed-job
+
+- name: create enroll_by_country seed job
+  include: create_seed_job.yml
+  vars:
+    seed_job: "{{ jenkins_seed_jobs.enroll_by_country }}"
+  when: jenkins_seed_jobs.enroll_by_country.enabled
   tags:
     - create-seed-job

@@ -1,0 +1,46 @@
+# Upload seed job
+
+- name: create temporary file for seed job
+  command: mktemp /tmp/ansible.XXXXXXXXXX
+  register: seed_job_tmp_file
+
+- name: upload job file
+  template: src=seed_job_template.xml dest={{ seed_job_tmp_file.stdout }} mode="600"
+
+- name: check if job is present
+  include: execute_jenkins_cli.yaml
+  vars:
+    jenkins_command_string: "get-job {{ seed_job.name | quote }}"
+    jenkins_ignore_cli_errors: yes
+
+# FIXME: can we use register for this?
+# http://docs.ansible.com/ansible/playbooks_variables.html#registered-variables
+- set_fact:
+    get_job_output: "{{ jenkins_command_output }}"
+
+
+# Upload seed job to Jenkins
+
+- name: Create seed job if absent
+  include: execute_jenkins_cli.yaml
+  vars:
+    jenkins_command_string: "create-job {{ seed_job.name | quote }}"
+    jenkins_command_prefix: "cat {{ seed_job_tmp_file.stdout }} | "
+  when: get_job_output.rc != 0
+
+- name: update seed job
+  include: execute_jenkins_cli.yaml
+  vars:
+    jenkins_command_string: "update-job {{ seed_job.name | quote }}"
+    jenkins_command_prefix: "cat {{ seed_job_tmp_file.stdout }} | "
+  when: get_job_output.rc == 0
+
+# Remove the tmp file
+- name: cleanup seed job tmp file
+  file: path={{ seed_job_tmp_file.stdout }} state=absent
+
+# Build the seed job
+- name: Build the seed job
+  include: execute_jenkins_cli.yaml
+  vars:
+    jenkins_command_string: "build {{ seed_job.name | quote }} -s"

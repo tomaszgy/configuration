@@ -12,19 +12,19 @@
     </jenkins.advancedqueue.AdvancedQueueSorterJobProperty>
     <hudson.model.ParametersDefinitionProperty>
         <parameterDefinitions>
-            {% for param in item.parameters %}
-            <hudson.plugins.global__variable__string__parameter.GlobalVariableStringParameterDefinition>
+            {% for key, param in seed_job.parameters.iteritems() %}
+            <hudson.model.TextParameterDefinition>
                 <name>{{ param.name }}</name>
                 <defaultValue>{{ param.value | default('') }}</defaultValue>
                 <description>{{ param.description | default('') }}</description>
-            </hudson.plugins.global__variable__string__parameter.GlobalVariableStringParameterDefinition>
+            </hudson.model.TextParameterDefinition>
             {% endfor %}
         </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
   <scm class='org.jenkinsci.plugins.multiplescms.MultiSCM'>
     <scms>
-    {% for scm in item.multiscm %}
+    {% for key, scm in seed_job.multiscm.iteritems() %}
       {% if scm.url %}
       <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
         <configVersion>2</configVersion>
@@ -64,7 +64,7 @@
     <hudson.plugins.gradle.Gradle plugin="gradle@1.24">
       <description></description>
       <switches></switches>
-      <tasks>{{ item.dsl.gradle_tasks }}</tasks>
+      <tasks>{{ seed_job.gradle_tasks }}</tasks>
       <rootBuildScriptDir></rootBuildScriptDir>
       <buildFile></buildFile>
       <gradleName>(x)</gradleName>
@@ -74,13 +74,13 @@
       <useWorkspaceAsHome>false</useWorkspaceAsHome>
     </hudson.plugins.gradle.Gradle>
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.43">
-      <targets>{{ item.dsl.target_jobs }}</targets>
+      <targets>{{ seed_job.target_jobs }}</targets>
       <usingScriptText>false</usingScriptText>
       <ignoreExisting>false</ignoreExisting>
-      <removedJobAction>{{ item.dsl.removed_job_action }}</removedJobAction>
-      <removedViewAction>{{ item.dsl.removed_view_action }}</removedViewAction>
+      <removedJobAction>{{ seed_job.removed_job_action }}</removedJobAction>
+      <removedViewAction>{{ seed_job.removed_view_action }}</removedViewAction>
       <lookupStrategy>SEED_JOB</lookupStrategy>
-      <additionalClasspath>{{ item.dsl.additional_classpath }}</additionalClasspath>
+      <additionalClasspath>{{ seed_job.additional_classpath }}</additionalClasspath>
     </javaposse.jobdsl.plugin.ExecuteDslScripts>
   </builders>
   <publishers/>

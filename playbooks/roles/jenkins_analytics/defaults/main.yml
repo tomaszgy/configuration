@@ -17,20 +17,19 @@ JENKINS_ANALYTICS_CREDENTIALS:
 
 JENKINS_ANALYTICS_CONCURRENT_JOBS_COUNT: 2
 
+ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL: "git@github.com:edx-ops/edx-jenkins-job-dsl.git"
+ANALYTICS_SCHEDULE_JOBS_DSL_REPO_VERSION: "master"
+ANALYTICS_SCHEDULE_JOBS_DSL_REPO_CREDENTIAL_ID: "{{ JENKINS_ANALYTICS_GITHUB_CREDENTIAL_ID }}"
+
 ANALYTICS_SCHEDULE_SECURE_REPO_URL: null
 ANALYTICS_SCHEDULE_SECURE_REPO_DEST: "analytics-secure-config"
 ANALYTICS_SCHEDULE_SECURE_REPO_VERSION: "master"
 ANALYTICS_SCHEDULE_SECURE_REPO_CREDENTIAL_ID: "{{ JENKINS_ANALYTICS_GITHUB_CREDENTIAL_ID }}"
-# If EXTRA_VARS is a file path, it can be relative to the workspace, or absolute.
-ANALYTICS_SCHEDULE_EXTRA_VARS: "@{{ ANALYTICS_SCHEDULE_SECURE_REPO_DEST }}/vars.yml"
-
-ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL: "git@github.com:edx-ops/edx-jenkins-job-dsl.git"
-ANALYTICS_SCHEDULE_JOBS_DSL_REPO_VERSION: "master"
-ANALYTICS_SCHEDULE_JOBS_DSL_REPO_CREDENTIAL_ID: "{{ JENKINS_ANALYTICS_GITHUB_CREDENTIAL_ID }}"
-ANALYTICS_SCHEDULE_JOBS_DSL_CLASSPATH: |
-  src/main/groovy
-  lib/*.jar
-ANALYTICS_SCHEDULE_JOBS_DSL_TARGET_JOBS: "jobs/analytics-edx-jenkins.edx.org/*Jobs.groovy"
+# If EXTRA_VARS is a file path, it can be relative to the workspace, e.g. 
+# "@{{ ANALYTICS_SCHEDULE_SECURE_REPO_DEST }}/vars.yml", or absolute.
+# If empty, then the DSL default values are used.
+# TODO: to document the options, point to dsl documentation
+ANALYTICS_SCHEDULE_EXTRA_VARS: null
 
 jenkins_credentials_root: '/tmp/credentials'
 jenkins_credentials_file_dest: "{{ jenkins_credentials_root }}/credentials.json"
@@ -45,35 +44,108 @@ jenkins_auth_realm:
   plain_password: "{{ JENKINS_ANALYTICS_USER_PASSWORD_PLAIN }}"
   hashed_password: "{{ JENKINS_ANALYTICS_USER_PASSWORD_HASHED }}"
 
-# For now only a single seed job is supported, adding more would require
-# Ansible 2.+ or converting _execute_jenkins_cli to a module
-jenkins_seed_job:
-  name: AnalyticsSeedJob
-  parameters:
-    - extra_vars:
-      name: EXTRA_VARS
-      value: "{{ ANALYTICS_SCHEDULE_EXTRA_VARS }}"
-      description: "Seed Job configuration"
-    - git_credentials:
-      name: GIT_CREDENTIAL_ID
-      value: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_CREDENTIAL_ID | default('') }}"
-      description: "Jenkins Credential ID used for cloning secure git repos.  Must match a Credential configured in Jenkins."
+# Attributes shared by all seed jobs
+jenkins_seed_job: &jenkins_seed_job
   multiscm:
-    - scm:
+    jobs_dsl:
       type: git
       url: "{{ ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL }}"
-      dest: ""
+      dest: null
       branch: "{{ ANALYTICS_SCHEDULE_JOBS_DSL_REPO_VERSION | default('master') }}"
-      credential_id: "{{ ANALYTICS_SCHEDULE_JOBS_DSL_REPO_CREDENTIAL_ID | default('') }}"
-    - scm:
+      credential_id: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_CREDENTIAL_ID | default('') }}"
+    secure_repo:
       type: git
       url: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_URL | default('') }}"
       dest: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_DEST | default('') }}"
       branch: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_VERSION | default('master') }}"
       credential_id: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_CREDENTIAL_ID | default('') }}"
-  dsl:
-    gradle_tasks: "clean libs test"
-    removed_view_action: IGNORE
-    removed_job_action: DELETE
-    additional_classpath: "{{ ANALYTICS_SCHEDULE_JOBS_DSL_CLASSPATH }}"
-    target_jobs: "{{ ANALYTICS_SCHEDULE_JOBS_DSL_TARGET_JOBS }}"
+
+  gradle_tasks: "clean libs test"
+  removed_view_action: IGNORE
+  removed_job_action: IGNORE
+  additional_classpath: |
+    src/main/groovy
+    lib/*.jar
+  target_jobs: "jobs/analytics-edx-jenkins.edx.org/*Jobs.groovy"
+  parameters: &jenkins_seed_job_parameters
+    git_credential_id:
+      name: GIT_CREDENTIAL_ID
+      description: Jenkins Credential ID used for cloning secure git repos
+      value: "{{ ANALYTICS_SCHEDULE_SECURE_REPO_CREDENTIAL_ID | default('') }}"
+
+# Individual seed job details inherit from the shared jenkins_seed_job
+jenkins_seed_jobs:
+  answer_distribution:
+    <<: *jenkins_seed_job
+    name: AnswerDistributionWorkflow Seed Job
+    enabled: "{{ ANALYTICS_SCHEDULE_ANSWER_DISTRIBUTION | default(true) }}"
+    parameters:
+      <<: *jenkins_seed_job_parameters
+      extra_vars:
+        name: EXTRA_VARS
+        description: AnswerDistributionWorkflow configuration
+        value: "{{ ANALYTICS_SCHEDULE_ANSWER_DISTRIBUTION_EXTRA_VARS | default(ANALYTICS_SCHEDULE_EXTRA_VARS) }}"
+      dsl_class:
+        name: DSL_CLASS
+        description: AnswerDistributionWorkflow DSL class
+        value: analyticstasks.AnswerDistributionWorkflow
+
+  import_enrollments:
+    <<: *jenkins_seed_job
+    name: ImportEnrollmentsIntoMysql Seed Job
+    enabled: "{{ ANALYTICS_SCHEDULE_IMPORT_ENROLLMENTS_INTO_MYSQL | default(true) }}"
+    parameters:
+      <<: *jenkins_seed_job_parameters
+      extra_vars:
+        name: EXTRA_VARS
+        description: ImportEnrollmentsIntoMysql configuration
+        value: "{{ ANALYTICS_SCHEDULE_IMPORT_ENROLLMENTS_INTO_MYSQL_EXTRA_VARS | default(ANALYTICS_SCHEDULE_EXTRA_VARS) }}"
+      dsl_class:
+        name: DSL_CLASS
+        description: ImportEnrollmentsIntoMysql DSL class name
+        value: analyticstasks.ImportEnrollmentsIntoMysql
+
+  course_activity:
+    <<: *jenkins_seed_job
+    name: CourseActivityWeeklyTask Seed Job
+    enabled: "{{ ANALYTICS_SCHEDULE_COURSE_ACTIVITY_WEEKLY | default(true) }}"
+    parameters:
+      <<: *jenkins_seed_job_parameters
+      extra_vars:
+        name: EXTRA_VARS
+        description: CourseActivityWeeklyTask job configuration
+        value: "{{ ANALYTICS_SCHEDULE_COURSE_ACTIVITY_WEEKLY_EXTRA_VARS | default(ANALYTICS_SCHEDULE_EXTRA_VARS) }}"
+      dsl_class:
+        name: DSL_CLASS
+        description: CourseActivityWeeklyTask DSL class name
+        value: analyticstasks.CourseActivityWeeklyTask
+
+  all_video:
+    <<: *jenkins_seed_job
+    name: InsertToMysqlAllVideoTask Seed Job
+    enabled: "{{ ANALYTICS_SCHEDULE_INSERT_TO_MYSQL_ALL_VIDEO | default(true) }}"
+    parameters:
+      <<: *jenkins_seed_job_parameters
+      extra_vars:
+        name: EXTRA_VARS
+        description: InsertToMysqlAllVideoTask job configuration
+        value: "{{ ANALYTICS_SCHEDULE_INSERT_TO_MYSQL_ALL_VIDEO_EXTRA_VARS | default(ANALYTICS_SCHEDULE_EXTRA_VARS) }}"
+      dsl_class:
+        name: DSL_CLASS
+        description: InsertToMysqlAllVideoTask DSL class name
+        value: analyticstasks.InsertToMysqlAllVideoTask
+
+  enroll_by_country:
+    <<: *jenkins_seed_job
+    name: InsertToMysqlCourseEnrollByCountryWorkflow Seed Job
+    enabled: "{{ ANALYTICS_SCHEDULE_INSERT_TO_MYSQL_COURSE_ENROLL_BY_COUNTRY | default(true) }}"
+    parameters:
+      <<: *jenkins_seed_job_parameters
+      extra_vars:
+        name: EXTRA_VARS
+        description: InsertToMysqlCourseEnrollByCountryWorkflow job configuration
+        value: "{{ ANALYTICS_SCHEDULE_INSERT_TO_MYSQL_COURSE_ENROLL_BY_COUNTRY_EXTRA_VARS | default(ANALYTICS_SCHEDULE_EXTRA_VARS) }}"
+      dsl_class:
+        name: DSL_CLASS
+        description: InsertToMysqlCourseEnrollByCountryWorkflow DSL class name
+        value: "{{ ANALYTICS_SCHEDULE_INSERT_TO_MYSQL_COURSE_ENROLL_BY_COUNTRY_DSL | default('analyticstasks.InsertToMysqlCourseEnrollByCountryWorkflow') }}"
