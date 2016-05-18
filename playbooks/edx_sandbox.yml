@@ -29,9 +29,10 @@
       - xqueue
       nginx_default_sites:
       - lms
-    - role: mysql
+    - role: edxlocal
       when: EDXAPP_MYSQL_HOST == 'localhost'
-    - edxlocal
+    - role: memcache
+      when: "'localhost' in ' '.join(EDXAPP_MEMCACHE)"
     - role: mongo
       when: "'localhost' in EDXAPP_MONGO_HOSTS"
     - { role: 'rabbitmq', rabbitmq_ip: '127.0.0.1' }
