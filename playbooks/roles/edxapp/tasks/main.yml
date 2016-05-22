@@ -90,6 +90,13 @@
     - install
     - install:base
   
+- name: install memcached if target is localhost
+  apt: pkg=memcached state=present update_cache=yes
+  when: "'localhost' in ' '.join(EDXAPP_MEMCACHE)"
+  tags:
+    - install
+    - install:base
+
 - name: set up edxapp .npmrc
   template:
     src=.npmrc.j2 dest={{ edxapp_app_dir }}/.npmrc
