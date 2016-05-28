@@ -46,6 +46,7 @@
     - { role: notifier, NOTIFIER_DIGEST_TASK_INTERVAL: "5" }
     - { role: "xqueue", update_users: True }
     - certs
+    - postfix_queue
     - edx_ansible
     - role: datadog
       when: COMMON_ENABLE_DATADOG
