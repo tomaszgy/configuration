@@ -145,8 +145,8 @@
 - name: Set the npm registry permissions
   file:
     path: "{{ edxapp_app_dir }}/.npmrc"
-    owner: edxapp
-    group: edxapp
+    owner: "{{ edxapp_user }}"
+    group: "{{ edxapp_user }}"
   tags:
     - install
     - install:app-requirements
@@ -373,7 +373,7 @@
 - name: create symlinks from the venv bin dir and repo dir
   file:
     src: "{{ item }}"
-    dest: "{{ COMMON_BIN_DIR }}/{{ item.split('.')[0] | basename }}.edxapp"
+    dest: "{{ COMMON_BIN_DIR }}/{{ item.split('.') | first | basename }}.edxapp"
     state: link
   with_items:
     - '{{ edxapp_venv_bin }}/python'
