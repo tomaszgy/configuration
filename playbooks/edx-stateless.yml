@@ -11,6 +11,7 @@
 
   vars:
     migrate_db: 'yes'
+    EDXAPP_NO_PREREQ_INSTALL: '0'  # Ensure that dependencies are installed
     EDXAPP_LMS_NGINX_PORT: '80'
     SANDBOX_ENABLE_ECOMMERCE: False  # Disable ecommerce by default
 
