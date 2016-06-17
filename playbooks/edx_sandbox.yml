@@ -22,7 +22,6 @@
     - { role: swapfile, SWAPFILE_SIZE: "2GB" }
     - role: nginx
       nginx_sites:
-      - certs
       - cms
       - lms
       - forum
@@ -36,7 +35,6 @@
     - { role: 'edxapp', celery_worker: True }
     - edxapp
     - notifier
-    - edx_notes_api
     - oauth_client_setup
     - { role: 'rabbitmq', rabbitmq_ip: '127.0.0.1' }
     - oraclejdk
@@ -45,12 +43,5 @@
     - forum
     - { role: notifier, NOTIFIER_DIGEST_TASK_INTERVAL: "5" }
     - { role: "xqueue", update_users: True }
-    - certs
     - postfix_queue
     - edx_ansible
-    - role: datadog
-      when: COMMON_ENABLE_DATADOG
-    - role: splunkforwarder
-      when: COMMON_ENABLE_SPLUNKFORWARDER
-    - role: newrelic
-      when: COMMON_ENABLE_NEWRELIC
