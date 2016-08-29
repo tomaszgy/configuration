@@ -26,4 +26,6 @@
     - edxlocal
     - memcache
     - mongo
+    - role: openstack
+      when: EDXAPP_SETTINGS == 'openstack'
     - edxapp
