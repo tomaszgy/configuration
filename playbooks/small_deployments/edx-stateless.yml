@@ -25,6 +25,8 @@
     FORUM_ELASTICSEARCH_HOST: "{{ groups['datastores'][0] }}"
     XQUEUE_RABBITMQ_HOSTNAME: "{{ groups['datastores'][0] }}"
     XQUEUE_MYSQL_HOST: "{{ groups['datastores'][0] }}"
+    FORUM_SINATRA_ENV: "production"
+    FORUM_RACK_ENV: "production'"
   roles:
 
     # Server setup
@@ -45,7 +47,6 @@
     # https://github.com/edx/edx-platform
     - role: edxapp
       celery_worker: True
-    - edxapp
 
     # Discussion forums
     # https://github.com/edx/cs_comments_service

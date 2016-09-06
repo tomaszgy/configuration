@@ -10,9 +10,11 @@
   gather_facts: True
   vars:
     MYSQL_BIND_ADDRESS: "0.0.0.0"
-#    EDXLOCAL_MYSQL_ALLOWED_HOST: "{{ hostvars['stateless'][0]['ansible_hostname'] }}"
-    EDXLOCAL_MYSQL_ALLOWED_HOST: "ip-192-168-0-160.ec2.internal"
-#    rabbitmq_ip: "{{ groups['datastores'][0] }}"
+    rabbitmq_ip: "{{ inventory_hostname }}"
+    MEMCACHED_LISTEN_IP_ADDRESS: "{{ inventory_hostname }}"
+    MEMCACHED_LISTEN_PORT: '11211'
+    MEMCACHED_LOGFILE_LOCATION: '/var/log/memcached.log'
+
   vars_files:
     - "../roles/edxapp/defaults/main.yml"
     - "../roles/forum/defaults/main.yml"

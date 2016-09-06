@@ -8,3 +8,25 @@
   tags:
     - install
     - install:memcache
+
+- name: Configure memcached
+  template:
+    src: 'etc/memcached.conf.j2'
+    dest: '/etc/memcached.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  tags:
+    - install
+    - install:memcache
+  register: memcache_config_updated
+
+- name: Restart memcached with new config
+  service:
+    name: memcached
+    state: restarted
+    enabled: yes
+  when: memcache_config_updated
+  tags:
+    - install
+    - install:memcache
