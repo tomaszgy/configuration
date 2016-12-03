@@ -1,14 +1,12 @@
 - Role: common_vars
   - Added `COMMON_ENABLE_AWS_INTEGRATION` to run the `aws` role when enabled. Default: `False`
   - Added `COMMON_ENABLE_OPENSTACK_INTEGRATION` to run the `openstack` role when enabled. Default: `False`
-
 - Role: edxapp
   - Added a new EDXAPP_MYSQL_CONN_MAX_AGE, default to 0.  Adjust it to change how long a connection is kept open
   for reuse before it is closed.
   - Set preload_app to False in gunicorn config for LMS and Studio.
 - Role: xqueue
   - Changed `XQUEUE_RABBITMQ_TLS` default from `true` to `false`.
-
 - Role: credentials
   - Added `CREDENTIALS_EXTRA_APPS` to enable the inclusion of additional Django apps in the Credentials Service.
 - Role: common
