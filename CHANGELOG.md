@@ -1,3 +1,6 @@
+- Role: common_vars
+  - Added `COMMON_ENABLE_AWS_INTEGRATION` to run the `aws` role when enabled. Default: `False`
+  - Added `COMMON_ENABLE_OPENSTACK_INTEGRATION` to run the `openstack` role when enabled. Default: `False`
 - Role: common
   - Renamed `COMMON_AWS_SYNC` to `COMMON_OBJECT_STORE_LOG_SYNC`
   - Renamed `COMMON_AWS_SYNC_BUCKET` to `COMMON_OBJECT_STORE_LOG_SYNC_BUCKET`

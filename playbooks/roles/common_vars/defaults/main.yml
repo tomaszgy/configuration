@@ -11,6 +11,11 @@ COMMON_BASIC_AUTH_EXCEPTIONS:
   - 192.168.0.0/16
   - 172.16.0.0/12
 
+# Set to True to install aws/openstack role
+# when running edx_sandbox or edx-stateless playbook.
+COMMON_ENABLE_AWS_INTEGRATION: False
+COMMON_ENABLE_OPENSTACK_INTEGRATION: False
+
 # Turn on syncing logs on rotation for edx
 # application and tracking logs, must also
 # have the aws or openstack role installed
@@ -85,6 +90,7 @@ COMMON_MYSQL_MIGRATE_PASS: 'password'
 
 COMMON_MONGO_READ_ONLY_USER: 'read_only'
 COMMON_MONGO_READ_ONLY_PASS: !!null
+
 COMMON_ENABLE_DATADOG: False
 COMMON_ENABLE_NGINXTRA: False
 COMMON_ENABLE_SPLUNKFORWARDER: False
