@@ -17,6 +17,7 @@
     # These should stay false for the public AMI
     COMMON_ENABLE_DATADOG: False
     SANDBOX_ENABLE_ECOMMERCE: False
+    SANDBOX_ENABLE_ANALYTICS: False
     COMMON_ENABLE_SPLUNKFORWARDER: False
   roles:
     - { role: swapfile, SWAPFILE_SIZE: "2GB" }
@@ -47,7 +48,9 @@
     - role: ecomworker
       when: SANDBOX_ENABLE_ECOMMERCE
     - analytics_api
+      when: SANDBOX_ENABLE_ANALYTICS
     - insights
+      when: SANDBOX_ENABLE_ANALYTICS
     # not ready yet: - edx_notes_api
     - demo
     - oauth_client_setup
