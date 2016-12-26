@@ -47,9 +47,9 @@
       when: SANDBOX_ENABLE_ECOMMERCE
     - role: ecomworker
       when: SANDBOX_ENABLE_ECOMMERCE
-    - analytics_api
+    - role: analytics_api
       when: SANDBOX_ENABLE_ANALYTICS
-    - insights
+    - role: insights
       when: SANDBOX_ENABLE_ANALYTICS
     # not ready yet: - edx_notes_api
     - demo
@@ -68,5 +68,5 @@
       when: COMMON_ENABLE_SPLUNKFORWARDER
     - role: newrelic
       when: COMMON_ENABLE_NEWRELIC
-    - role: postfix
+    - role: postfix_queue
       when: POSTFIX_QUEUE_EXTERNAL_SMTP_HOST
