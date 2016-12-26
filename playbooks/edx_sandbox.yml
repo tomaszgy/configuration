@@ -68,3 +68,5 @@
       when: COMMON_ENABLE_SPLUNKFORWARDER
     - role: newrelic
       when: COMMON_ENABLE_NEWRELIC
+    - role: postfix
+      when: POSTFIX_QUEUE_EXTERNAL_SMTP_HOST
