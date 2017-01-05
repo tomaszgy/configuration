@@ -69,4 +69,4 @@
     - role: newrelic
       when: COMMON_ENABLE_NEWRELIC
     - role: postfix_queue
-      when: POSTFIX_QUEUE_EXTERNAL_SMTP_HOST
+       when: POSTFIX_QUEUE_EXTERNAL_SMTP_HOST != ''
