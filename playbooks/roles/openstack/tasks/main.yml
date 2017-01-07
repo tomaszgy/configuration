@@ -58,7 +58,3 @@
     src: "{{ openstack_log_sync_script }}"
     dest: "{{ COMMON_SWIFT_LOG_SYNC_SCRIPT }}"
   when: COMMON_SWIFT_LOG_SYNC
-
-- name: make sure Openstack Python requirements get installed
-  set_fact:
-    edxapp_requirements_files: "{{ edxapp_requirements_files + [openstack_requirements_file] }}"
