@@ -8,11 +8,8 @@
   hosts: all
   gather_facts: no
   become: True
-  tasks:
-    - name: Update apt-get
-      raw: apt-get update -qq
-    - name: Install python 2.7
-      raw: apt-get install -qq python-minimal
+  roles:
+    - bootstrap
 
 - name: Configure instance(s)
   hosts: all

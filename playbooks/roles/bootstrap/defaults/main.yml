@@ -1,0 +1,4 @@
+# Bootstrap the server with python 2.7
+
+bootstrap_packages:
+  - python
