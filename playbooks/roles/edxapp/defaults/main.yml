@@ -97,7 +97,7 @@ EDXAPP_ELASTIC_SEARCH_CONFIG:
     - host: "localhost"
       port: 9200
 
-EDXAPP_SETTINGS: 'aws'
+EDXAPP_SETTINGS: '{{ COMMON_EDXAPP_SETTINGS }}'
 
 EDXAPP_LMS_ENV: 'lms.envs.{{ EDXAPP_SETTINGS }}'
 EDXAPP_CMS_ENV: 'cms.envs.{{ EDXAPP_SETTINGS }}'
@@ -131,6 +131,7 @@ EDXAPP_YOUTUBE_API_KEY: "PUT_YOUR_API_KEY_HERE"
 EDXAPP_ZENDESK_USER: ""
 EDXAPP_ZENDESK_URL: ""
 EDXAPP_ZENDESK_API_KEY: ""
+EDXAPP_ZENDESK_CUSTOM_FIELDS: {}
 EDXAPP_CELERY_USER: 'celery'
 EDXAPP_CELERY_PASSWORD: 'celery'
 EDXAPP_CELERY_BROKER_VHOST: ""
@@ -367,7 +368,7 @@ EDXAPP_SANDBOX_ENFORCE: true
 EDXAPP_AUTOMATED_USERS:
   automated_user:
     sudo_commands:
-      - command: "{{ edxapp_venv_bin }}/python {{ edxapp_code_dir }}/manage.py lms migrate --list --settings=aws"
+      - command: "{{ edxapp_venv_bin }}/python {{ edxapp_code_dir }}/manage.py lms migrate --list --settings={{ edxapp_settings }}"
         sudo_user: "edxapp"
     authorized_keys:
       - "SSH authorized key"
@@ -641,6 +642,7 @@ edxapp_venv_dir: "{{ edxapp_venvs_dir }}/edxapp"
 edxapp_venv_bin: "{{ edxapp_venv_dir }}/bin"
 edxapp_nodeenv_dir: "{{ edxapp_app_dir }}/nodeenvs/edxapp"
 edxapp_nodeenv_bin: "{{ edxapp_nodeenv_dir }}/bin"
+edxapp_settings: '{{ EDXAPP_SETTINGS }}'
 edxapp_node_version: "6.9.2"
 # This is where node installs modules, not node itself
 edxapp_node_bin: "{{ edxapp_code_dir }}/node_modules/.bin"
@@ -825,6 +827,7 @@ generic_env_config:  &edxapp_generic_env
   CELERY_BROKER_USE_SSL: "{{ EDXAPP_CELERY_BROKER_USE_SSL }}"
   PAYMENT_SUPPORT_EMAIL: "{{ EDXAPP_PAYMENT_SUPPORT_EMAIL }}"
   ZENDESK_URL: "{{ EDXAPP_ZENDESK_URL }}"
+  ZENDESK_CUSTOM_FIELDS: "{{ EDXAPP_ZENDESK_CUSTOM_FIELDS }}"
   COURSES_WITH_UNSAFE_CODE: "{{ EDXAPP_COURSES_WITH_UNSAFE_CODE }}"
   BULK_EMAIL_EMAILS_PER_TASK: "{{ EDXAPP_BULK_EMAIL_EMAILS_PER_TASK }}"
   MICROSITE_ROOT_DIR: "{{ EDXAPP_MICROSITE_ROOT_DIR }}"

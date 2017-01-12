@@ -16,6 +16,9 @@ COMMON_BASIC_AUTH_EXCEPTIONS:
 COMMON_ENABLE_AWS_INTEGRATION: False
 COMMON_ENABLE_OPENSTACK_INTEGRATION: False
 
+# Settings to use for calls to edxapp manage.py
+COMMON_EDXAPP_SETTINGS: 'aws'
+
 # Turn on syncing logs on rotation for edx
 # application and tracking logs, must also
 # have the aws or openstack role installed
