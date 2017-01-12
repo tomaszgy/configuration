@@ -7,4 +7,4 @@
 
 - name: Install packages
   raw: "apt-get install -qq {{ item }}"
-  with_items: "{{ bootstrap_packages }}"
+  with_items: "{{ python_packages }}"

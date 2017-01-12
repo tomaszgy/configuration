@@ -8,7 +8,7 @@
   gather_facts: no
   become: True
   roles:
-    - bootstrap
+    - python
 
 - name: Configure instance(s)
   hosts: all
