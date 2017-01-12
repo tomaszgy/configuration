@@ -1,9 +1,0 @@
----
-- hosts: all
-  gather_facts: False
-  become: True
-  tasks:
-    - name: Update apt-get
-      raw: apt-get update -qq
-    - name: Install python 2.7
-      raw: apt-get install -qq python-minimal

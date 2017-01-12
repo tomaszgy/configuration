@@ -4,6 +4,16 @@
 # for single server community
 # installs
 
+- name: Bootstrap instance(s)
+  hosts: all
+  gather_facts: no
+  become: True
+  tasks:
+    - name: Update apt-get
+      raw: apt-get update -qq
+    - name: Install python 2.7
+      raw: apt-get install -qq python-minimal
+
 - name: Configure instance(s)
   hosts: all
   become: True
