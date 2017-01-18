@@ -54,7 +54,8 @@
       when: SANDBOX_ENABLE_ECOMMERCE
     - notifier
     # not ready yet: - edx_notes_api
-    - demo
+    # Never create the demo course or users for Cloudera
+    # demo
     - oauth_client_setup
     - oraclejdk
     - role: elasticsearch
