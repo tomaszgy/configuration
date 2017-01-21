@@ -57,7 +57,8 @@
       when: SANDBOX_ENABLE_ECOMMERCE
     - role: ecomworker
       when: SANDBOX_ENABLE_ECOMMERCE
-    - programs
+    # JV - disabling until https://github.com/open-craft/opencraft/pull/168
+    #- programs
     - analytics_api
     - insights
     # not ready yet: - edx_notes_api
