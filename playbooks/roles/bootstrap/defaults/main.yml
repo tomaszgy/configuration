@@ -1,0 +1,4 @@
+# Bootstrap the server with python2.7 + the /usr/bin/python symlink.
+
+bootstrap_packages:
+  - python-minimal

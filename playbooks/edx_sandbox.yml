@@ -4,6 +4,13 @@
 # for single server community
 # installs
 
+- name: Bootstrap instance(s)
+  hosts: all
+  gather_facts: no
+  become: True
+  roles:
+    - bootstrap
+
 - name: Configure instance(s)
   hosts: all
   become: True
@@ -42,11 +49,16 @@
     - { role: 'rabbitmq', rabbitmq_ip: '127.0.0.1' }
     - { role: 'edxapp', celery_worker: True }
     - edxapp
+    - role: aws
+      when: COMMON_ENABLE_AWS_INTEGRATION
+    - role: openstack
+      when: COMMON_ENABLE_OPENSTACK_INTEGRATION
     - role: ecommerce
       when: SANDBOX_ENABLE_ECOMMERCE
     - role: ecomworker
       when: SANDBOX_ENABLE_ECOMMERCE
-    - programs
+    # JV - disabling until https://github.com/open-craft/opencraft/pull/168
+    #- programs
     - analytics_api
     - insights
     # not ready yet: - edx_notes_api
@@ -66,3 +78,5 @@
       when: COMMON_ENABLE_SPLUNKFORWARDER
     - role: newrelic
       when: COMMON_ENABLE_NEWRELIC
+    - role: postfix_queue
+      when: POSTFIX_QUEUE_EXTERNAL_SMTP_HOST != ''
