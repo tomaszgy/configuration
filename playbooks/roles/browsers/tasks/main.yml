@@ -1,22 +1,6 @@
 # Install browsers required to run the JavaScript
 # and acceptance test suite locally without a display
 ---
-- name: install Google public key for apt
-  apt_key:
-    url: "https://dl-ssl.google.com/linux/linux_signing_key.pub"
-    state: present
-  tags:
-    - install
-    - install:system-requirements
-
-- name: add Google Chrome repo to the sources list
-  apt_repository:
-    repo: "{{ chrome_repo }}"
-    state: present
-  tags:
-    - install
-    - install:system-requirements
-
 - name: lock Firefox version
   copy:
     dest: /etc/apt/preferences.d/firefox-pinned-version
@@ -37,10 +21,28 @@
     - install
     - install:system-requirements
 
+- name: download browser packages from S3
+  get_url:
+    dest: /tmp/{{ item.name }}
+    url: "{{ item.url }}"
+  register: download_deb
+  with_items: "{{ browser_s3_deb_pkgs }}"
+  tags:
+    - install
+    - install:system-requirements
+
+- name: install browser packages
+  shell: gdebi -nq /tmp/{{ item.name }}
+  when: download_deb.changed
+  with_items: "{{ browser_s3_deb_pkgs }}"
+  tags:
+    - install
+    - install:system-requirements
+
 - name: download ChromeDriver
   get_url:
-    url={{ chromedriver_url }}
-    dest=/var/tmp/chromedriver_{{ chromedriver_version }}.zip
+    url: "{{ chromedriver_url }}"
+    dest: /var/tmp/chromedriver_{{ chromedriver_version }}.zip
   register: download_chromedriver
   tags:
     - install
@@ -48,7 +50,8 @@
 
 - name: unzip ChromeDriver tarfile
   shell: unzip /var/tmp/chromedriver_{{ chromedriver_version }}.zip
-         chdir=/var/tmp
+  args:
+    chdir: /var/tmp
   when: download_chromedriver.changed
   tags:
     - install
@@ -62,14 +65,17 @@
     - install:system-requirements
 
 - name: make ChromeDriver binary executable
-  file: path=/usr/local/bin/chromedriver mode=0755
+  file:
+    path: /usr/local/bin/chromedriver
+    mode: 0755
   when: download_chromedriver.changed
   tags:
     - install
     - install:system-requirements
 
 - name: verify ChromeDriver location and mode
-  stat: path=/usr/local/bin/chromedriver
+  stat:
+    path: /usr/local/bin/chromedriver
   register: chromedriver
   tags:
     - install
@@ -122,7 +128,11 @@
     - install:system-requirements
 
 - name: create xvfb systemd service
-  template: src=xvfb.service.j2 dest=/etc/systemd/system/xvfb.service owner=root group=root
+  template:
+    src: xvfb.service.j2
+    dest: /etc/systemd/system/xvfb.service
+    owner: root
+    group: root
   tags:
     - install
     - install:configuration

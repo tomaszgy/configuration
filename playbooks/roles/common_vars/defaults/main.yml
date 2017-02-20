@@ -59,7 +59,7 @@ common_directories:
   - path: "/etc/logrotate.d/hourly"
   - path: "/etc/rsyslog.d/50-default.conf"
     state: absent
-    
+
 COMMON_ENVIRONMENT: 'default_env'
 COMMON_DEPLOYMENT: 'default_deployment'
 COMMON_PIP_VERBOSITY: ''
@@ -113,6 +113,7 @@ COMMON_ENABLE_NEWRELIC_APP: False
 COMMON_ENABLE_MINOS: False
 COMMON_TAG_EC2_INSTANCE: False
 common_boto_version: '2.34.0'
+common_node_version: '6.9.4'
 common_redhat_pkgs:
   - ntp
   - lynx
@@ -133,7 +134,7 @@ common_debian_pkgs:
   - python2.7-dev
 
 # Packages that should be installed from our custom PPA, i.e. COMMON_EDX_PPA
-common_custom_debian_pkgs:
+old_python_debian_pkgs:
   - "python2.7=2.7.10-0+{{ ansible_distribution_release }}1"
 
 common_pip_pkgs:
@@ -167,8 +168,8 @@ common_debian_variants:
   - Ubuntu
   - Debian
 
-# Only attempt to use our custom PPA for these releases
-common_custom_ppa_releases:
+# We only have to install old Python for these releases:
+old_python_ppa_releases:
   - precise
   - trusty
 
