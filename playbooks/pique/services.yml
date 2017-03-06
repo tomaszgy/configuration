@@ -1,0 +1,17 @@
+- name: Deploy RabbitMQ, ElasticSearch, Notifier
+  hosts: all
+  become: True
+  gather_facts: True
+  vars:
+    elb_pre_post: false  # We don't want ansible managing ELB for RabbitMQ
+    # Number of instances to operate on at a time
+    serial_count: 1
+    CLUSTER_NAME: 'services'
+  serial: "{{ serial_count }}"
+  roles:
+    - common
+    - aws
+    - rabbitmq
+    - oraclejdk
+    - elasticsearch
+    - notifier  # Notifier doesn't work properly in a clustered configuration (sends duplicate emails) so needs to be shut down later on all but 1 cluster member
