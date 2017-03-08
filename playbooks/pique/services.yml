@@ -1,3 +1,18 @@
+---
+
+# Playbook for the services cluster VMs
+
+# First activate up the configuration virtualenv:
+#   source ~/venv-ansible/bin/activate
+# (If you don't have that yet, run 'virtualenv ~/venv-ansible' then that command, then 'pip install -r ~/configuration/requirements.txt')
+# Run with a command like this,
+#   ansible-playbook -i 10.1.1.1,10.2.2.2,10.3.3.3 -e@../../../vars.yml -u ubuntu services.yml
+
+# If you encounter this error:
+#   error: Encountered unknown tag 'do'."
+# Then set this environment variable first:
+#   export ANSIBLE_JINJA2_EXTENSIONS=jinja2.ext.do
+
 - name: Deploy RabbitMQ, ElasticSearch, Notifier
   hosts: all
   become: True

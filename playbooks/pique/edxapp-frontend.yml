@@ -1,0 +1,64 @@
+---
+
+# Playbook for the edxapp frontend VMs
+
+# First activate up the configuration virtualenv:
+#   source ~/venv-ansible/bin/activate
+# (If you don't have that yet, run 'virtualenv ~/venv-ansible' then that command, then 'pip install -r ~/configuration/requirements.txt')
+# Run with a command like this,
+#   ansible-playbook -i 10.1.1.1,10.2.2.2,10.3.3.3 -e@../../../vars.yml -u ubuntu services.yml
+
+# If you encounter this error:
+#   error: Encountered unknown tag 'do'."
+# Then set this environment variable first:
+#   export ANSIBLE_JINJA2_EXTENSIONS=jinja2.ext.do
+
+- name: Configure edxapp frontend instance(s)
+  hosts: all
+  become: True
+  gather_facts: True
+  vars:
+    migrate_db: "yes"
+    # Proxy headers sohuld be set by the ELB, not nginx so set this false:
+    NGINX_SET_X_FORWARDED_HEADERS: False
+  roles:
+    - security
+    - { role: swapfile, SWAPFILE_SIZE: "2GB" }
+    - role: nginx
+      nginx_sites:
+      - certs
+      - cms
+      - lms
+      - forum
+      - xqueue
+      nginx_default_sites:
+      - lms
+    # We're using ElastiCache, so no memcache
+    #- role: memcache
+    #  when: "'localhost' in ' '.join(EDXAPP_MEMCACHE)"
+
+    # Celery workers (process asynchronous tasks)
+    - { role: 'edxapp', celery_worker: True }
+
+    # LMS, CMS, etc - the heart of the Open edX app
+    - edxapp
+
+    - oauth_client_setup
+
+    # Discussion forums
+    # https://github.com/edx/cs_comments_service
+    - forum
+
+    - { role: "xqueue", update_users: True }
+
+    # Certificate generation
+    # https://github.com/edx/edx-certificates
+    - certs
+
+    - role: datadog
+      when: COMMON_ENABLE_DATADOG
+    - role: splunkforwarder
+      when: COMMON_ENABLE_SPLUNKFORWARDER
+    - role: newrelic
+      when: COMMON_ENABLE_NEWRELIC
+    - postfix_queue
