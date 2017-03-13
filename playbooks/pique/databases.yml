@@ -1,0 +1,85 @@
+---
+# Playbook to create the required databases and users
+# You must run this once before running the edxapp playbook
+
+# First activate up the configuration virtualenv:
+#   source ~/venv-ansible/bin/activate
+# (If you don't have that yet, run 'virtualenv ~/venv-ansible' then that command, then 'pip install -r ~/configuration/requirements.txt')
+# Run with a command like this,
+#   ansible-playbook -i localhost, -e@../../../vars.yml databases.yml
+
+- name: Create databases and users
+  hosts: all
+  gather_facts: False
+  vars:
+    PIQUE_DATABASES:
+      - "{{ EDXAPP_MYSQL_DB_NAME | default(None) }}"
+      - "{{ EDXAPP_MYSQL_CSMH_DB_NAME | default(None) }}"
+      - "{{ XQUEUE_MYSQL_DB_NAME | default(None) }}"
+      #- "{{ CREDENTIALS_DEFAULT_DB_NAME | default(None) }}"
+      #- "{{ DISCOVERY_DEFAULT_DB_NAME | default(None) }}"
+      #- "{{ PROGRAMS_DEFAULT_DB_NAME | default(None) }}"
+      #- "{{ EDX_NOTES_API_MYSQL_DB_NAME | default(None) }}"
+      #- "{{ ECOMMERCE_DEFAULT_DB_NAME | default(None) }}"
+      #- "{{ INSIGHTS_DATABASE_NAME | default(None) }}"
+      #- "{{ ANALYTICS_API_DEFAULT_DB_NAME | default(None) }}"
+      #- "{{ ANALYTICS_API_REPORTS_DB_NAME | default(None) }}"
+    PIQUE_DATABASE_USERS:
+      - {
+          db: "{{ EDXAPP_MYSQL_DB_NAME | default(None) }}",
+          user: "{{ EDXAPP_MYSQL_USER | default(None) }}",
+          pass: "{{ EDXAPP_MYSQL_PASSWORD | default(None) }}"
+        }
+      - {
+          db: "{{ XQUEUE_MYSQL_DB_NAME | default(None) }}",
+          user: "{{ XQUEUE_MYSQL_USER | default(None) }}",
+          pass: "{{ XQUEUE_MYSQL_PASSWORD | default(None) }}"
+        }
+  tasks:
+    # Install required library, currently this needs to be available
+    # to system python.
+    - name: install python mysqldb module
+      pip: name={{item}} state=present
+      with_items:
+        - MySQL-python
+
+    - name: create databases
+      mysql_db:
+        db: "{{ item }}"
+        state: present
+        encoding: utf8
+      when: item != None and item != ''
+      with_items: "{{ PIQUE_DATABASES }}"
+
+    - name: create database users
+      mysql_user:
+        name: "{{ item.user }}"
+        password: "{{ item.pass }}"
+        priv: "{{ item.db }}.*:ALL"
+        append_privs: yes
+      when: item.db != None and item.db != ''
+      with_items: "{{ PIQUE_DATABASE_USERS }}"
+
+    #- name: setup the migration db user
+    #  mysql_user:
+    #    name: "{{ COMMON_MYSQL_MIGRATE_USER }}"
+    #    password: "{{ COMMON_MYSQL_MIGRATE_PASS }}"
+    #    priv: "{{ item }}.*:ALL"
+    #    append_privs: yes
+    #  when: item != None and item != ''
+    #  with_items: "{{ PIQUE_DATABASES }}"
+
+    # Other databases from the edxlocal role skipped
+    # (analytics API, hive, notes API)
+
+    #- name: setup the read-only db user
+    #  mysql_user:
+    #    name: "{{ COMMON_MYSQL_READ_ONLY_USER }}"
+    #    password: "{{ COMMON_MYSQL_READ_ONLY_PASS }}"
+    #    priv: "*.*:ALL"
+
+    #- name: setup the admin db user
+    #  mysql_user:
+    #    name: "{{ COMMON_MYSQL_ADMIN_USER }}"
+    #    password: "{{ COMMON_MYSQL_ADMIN_PASS }}"
+    #    priv: "*.*:CREATE USER"
