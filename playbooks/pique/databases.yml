@@ -6,7 +6,7 @@
 #   source ~/venv-ansible/bin/activate
 # (If you don't have that yet, run 'virtualenv ~/venv-ansible' then that command, then 'pip install -r ~/configuration/requirements.txt')
 # Run with a command like this,
-#   ansible-playbook -i "localhost," -c local --extra-vars "ansible_python_interpreter=`which python`" databases.yml
+#   ansible-playbook -i "localhost," -c local -e@../../../vars.yml -e "ansible_python_interpreter=`which python`" databases.yml
 
 - name: Create databases and users
   hosts: all
