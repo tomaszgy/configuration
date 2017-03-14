@@ -24,17 +24,17 @@
       #- "{{ INSIGHTS_DATABASE_NAME | default(None) }}"
       #- "{{ ANALYTICS_API_DEFAULT_DB_NAME | default(None) }}"
       #- "{{ ANALYTICS_API_REPORTS_DB_NAME | default(None) }}"
-    PIQUE_DATABASE_USERS:
-      - {
-          db: "{{ EDXAPP_MYSQL_DB_NAME | default(None) }}",
-          user: "{{ EDXAPP_MYSQL_USER | default(None) }}",
-          pass: "{{ EDXAPP_MYSQL_PASSWORD | default(None) }}"
-        }
-      - {
-          db: "{{ XQUEUE_MYSQL_DB_NAME | default(None) }}",
-          user: "{{ XQUEUE_MYSQL_USER | default(None) }}",
-          pass: "{{ XQUEUE_MYSQL_PASSWORD | default(None) }}"
-        }
+    #PIQUE_DATABASE_USERS:
+    #  - {
+    #      db: "{{ EDXAPP_MYSQL_DB_NAME | default(None) }}",
+    #      user: "{{ EDXAPP_MYSQL_USER | default(None) }}",
+    #      pass: "{{ EDXAPP_MYSQL_PASSWORD | default(None) }}"
+    #    }
+    #  - {
+    #      db: "{{ XQUEUE_MYSQL_DB_NAME | default(None) }}",
+    #      user: "{{ XQUEUE_MYSQL_USER | default(None) }}",
+    #      pass: "{{ XQUEUE_MYSQL_PASSWORD | default(None) }}"
+    #    }
   tasks:
     # Install required library, currently this needs to be available
     # to system python.
@@ -48,17 +48,25 @@
         db: "{{ item }}"
         state: present
         encoding: utf8
+        login_host: "{{ EDXAPP_MYSQL_HOST }}"
+        login_port: "{{ EDXAPP_MYSQL_PORT }}"
+        login_user: "{{ EDXAPP_MYSQL_USER }}"
+        login_password: "{{ EDXAPP_MYSQL_PASSWORD }}"
       when: item != None and item != ''
       with_items: "{{ PIQUE_DATABASES }}"
 
-    - name: create database users
-      mysql_user:
-        name: "{{ item.user }}"
-        password: "{{ item.pass }}"
-        priv: "{{ item.db }}.*:ALL"
-        append_privs: yes
-      when: item.db != None and item.db != ''
-      with_items: "{{ PIQUE_DATABASE_USERS }}"
+    #- name: create database users
+    #  mysql_user:
+    #    name: "{{ item.user }}"
+    #    password: "{{ item.pass }}"
+    #    priv: "{{ item.db }}.*:ALL"
+    #    append_privs: yes
+    #    login_host: "{{ EDXAPP_MYSQL_HOST }}"
+    #    login_port: "{{ EDXAPP_MYSQL_PORT }}"
+    #    login_user: "{{ EDXAPP_MYSQL_USER }}"
+    #    login_password: "{{ EDXAPP_MYSQL_PASSWORD }}"
+    #  when: item.db != None and item.db != ''
+    #  with_items: "{{ PIQUE_DATABASE_USERS }}"
 
     #- name: setup the migration db user
     #  mysql_user:
