@@ -51,6 +51,15 @@
     - install
     - install:code
 
+# Work around http://stackoverflow.com/questions/24251494/nokogiri-gem-installation-error
+- name: work around nokogiri libxml2 compilation issue
+  shell: "bundle config build.nokogiri --use-system-libraries"
+  become_user: "{{ forum_user }}"
+  environment: "{{ forum_environment }}"
+  tags:
+    - install
+    - install:app-requirements
+
 - name: install comments service bundle
   shell: "bundle install --deployment --path {{ forum_gem_root }} chdir={{ forum_code_dir }}"
   become_user: "{{ forum_user }}"
