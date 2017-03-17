@@ -89,6 +89,8 @@
     supervisorctl_path: "{{ supervisor_ctl }}"
     config: "{{ supervisor_cfg }}"
     state: started
+  ignore_errors: True
+  # ^ Temporary workaround for https://github.com/ansible/ansible/issues/3977 (remove this line when rebasing to a newer version of configuration)
   when: not disable_edx_services
   tags:
     - manage
