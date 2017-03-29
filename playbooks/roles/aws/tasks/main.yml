@@ -30,9 +30,15 @@
   tags:
     - deploy
 
+- name: Check for eth0 interface
+  command: /sbin/ifconfig eth0
+  ignore_errors: yes
+  register: eth0_check
+  when: ansible_distribution in common_debian_variants
+
 - name: Set the MTU to 1500 temporarily
   shell: /sbin/ifconfig eth0 mtu 1500 up
-  when: ansible_distribution in common_debian_variants
+  when: ansible_distribution in common_debian_variants and eth0_check.rc == 0
 
 - name: Check for eth0.cfg
   stat:
