@@ -26,6 +26,7 @@
     SANDBOX_ENABLE_ECOMMERCE: False
     SANDBOX_ENABLE_DISCOVERY: False
     COMMON_ENABLE_SPLUNKFORWARDER: False
+    ENABLE_DISCOVERY_METADATA_REFRESH_CRONTASK: True
   roles:
     - role: swapfile
       SWAPFILE_SIZE: 4GB
@@ -42,6 +43,10 @@
       nginx_sites:
       - ecommerce
       when: SANDBOX_ENABLE_ECOMMERCE
+    - role: nginx
+      nginx_sites:
+      - discovery
+      when: SANDBOX_ENABLE_DISCOVERY
     - role: edxlocal
       when: EDXAPP_MYSQL_HOST == 'localhost'
     - role: memcache
