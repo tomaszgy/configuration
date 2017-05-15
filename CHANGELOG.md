@@ -2,6 +2,10 @@
   - Added `COMMON_ENABLE_AWS_INTEGRATION` to run the `aws` role when enabled. Default: `False`
   - Added `COMMON_ENABLE_OPENSTACK_INTEGRATION` to run the `openstack` role when enabled. Default: `False`
 
+- Role: nginx
+  - Added `NGINX_EDXAPP_CMS_APP_EXTRA`, which makes it possible to add custom settings to the site configuration for Studio.
+  - Added `NGINX_EDXAPP_LMS_APP_EXTRA`, which makes it possible to add custom settings to the site configuration for the LMS.
+
 - Role: edxapp
   - Added a new EDXAPP_MYSQL_CONN_MAX_AGE, default to 0.  Adjust it to change how long a connection is kept open
   for reuse before it is closed.
