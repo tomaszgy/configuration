@@ -1,3 +1,7 @@
+- Role: common
+  - Added `COMMON_FALLBACK_DNS_SERVERS`, which optionally adds additional `nameserver` entries to the resolvconf tail
+  - Explicitly added `resolvconf` as a dependency
+
 - Role: edxapp
   - Let `confirm_email` in `EDXAPP_REGISTRATION_EXTRA_FIELDS` default to `"hidden"`.
   - Let `terms_of_service` in `EDXAPP_REGISTRATION_EXTRA_FIELDS` default to `"hidden"`.
