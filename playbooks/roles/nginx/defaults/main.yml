@@ -112,6 +112,8 @@ nginx_ecommerce_gunicorn_hosts:
   - 127.0.0.1
 nginx_credentails_gunicorn_hosts:
   - 127.0.0.1
+nginx_discovery_gunicorn_hosts:
+  - 127.0.0.1
 
 nginx_cfg:
   #   - link - turn on
