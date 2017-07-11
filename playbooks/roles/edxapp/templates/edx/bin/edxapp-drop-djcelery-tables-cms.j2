@@ -1,0 +1,7 @@
+{% include "edxapp_common.j2" %}
+
+if [[ -z "${NO_EDXAPP_SUDO:-}" ]]; then
+    SUDO='sudo -E -u {{ edxapp_user }} env "PATH=$PATH"'
+fi
+
+${SUDO:-} {{ edxapp_venv_bin }}/python manage.py cms drop_djcelery_tables --settings $EDX_PLATFORM_SETTINGS $@

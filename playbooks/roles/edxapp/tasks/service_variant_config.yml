@@ -125,6 +125,13 @@
     - install
     - install:configuration
 
+- name: run drop-djcelery-tables management command
+  command: "{{ COMMON_BIN_DIR }}/edxapp-drop-djcelery-tables-lms"
+  run_once: true
+  tags:
+    - migrate
+  when: celery_worker|default(false)|bool and drop_djcelery_tables|default(true)|bool
+
 # migrate when the migrate user is overridden in extra vars
 - name: migrate
   command: "{{ COMMON_BIN_DIR }}/edxapp-migrate-{{ item }}"
