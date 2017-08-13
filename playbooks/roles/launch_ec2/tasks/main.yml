@@ -50,6 +50,7 @@
       - device_name: /dev/sda1
         volume_size: "{{ root_ebs_size }}"
         delete_on_termination: true
+        volume_type: "gp2"
     zone: "{{ zone }}"
     instance_profile_name: "{{ instance_profile_name }}"
     user_data: "{{ user_data }}"
@@ -79,7 +80,7 @@
     value: "{{ item[0].public_dns_name }}"
   with_nested:
     - "{{ ec2.instances }}"
-    - ['studio', 'ecommerce', 'preview', 'programs', 'discovery', 'credentials']
+    - ['studio', 'ecommerce', 'preview', 'discovery', 'credentials']
 
 - name: Add new instance to host group
   local_action:

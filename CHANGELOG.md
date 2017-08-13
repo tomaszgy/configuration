@@ -2,9 +2,41 @@
   - Added a new EDXAPP_MYSQL_CONN_MAX_AGE, default to 0.  Adjust it to change how long a connection is kept open
   for reuse before it is closed.
   - Set preload_app to False in gunicorn config for LMS and Studio.
+
+- Role: common_vars
+  - Added `COMMON_ENABLE_AWS_INTEGRATION` to run the `aws` role when enabled. Default: `False`
+  - Added `COMMON_ENABLE_OPENSTACK_INTEGRATION` to run the `openstack` role when enabled. Default: `False`
+
+- Role: edxapp
+  - Added the EDXAPP_SHOW_HEADER_LANGUAGE_SELECTOR feature flag with default value [false]
+  - Added the EDXAPP_SHOW_FOOTER_LANGUAGE_SELECTOR feature flag with default value [false]
+
+- Role: edxapp
+  - Added the EDXAPP_ENTERPRISE_COURSE_ENROLLMENT_AUDIT_MODES setting with default value ["audit"]
+
+- Role: edxapp
+  - DOC_LINK_BASE settings have been removed, replaced by HELP_TOKENS_BOOKS
+
+- Role: edxapp
+  - Add the EDXAPP_LANGUAGE_COOKIE setting
+
+- Role: rabbitmq
+  - Upgraded to 3.6.9
+  - Switched to a PPA rather than a .deb hosted in S3
+  - Note that you generally cannot upgrade RabbitMQ live in place https://www.rabbitmq.com/clustering.html
+    this is particularly true coming from 3.2 to 3.6.  We are using the shovel plugin to move tasks across clusters
+    but their documentation covers different scenarios.
+
 - Role: xqueue
   - Changed `XQUEUE_RABBITMQ_TLS` default from `true` to `false`.
 
+- Role: analytics_api
+  - Added `ANALYTICS_API_AGGREGATE_PAGE_SIZE`, default value 10.  Adjust this parameter to increase the number of
+    aggregate search results returned by the Analytics API, i.e. in course_metadata: enrollment_modes, cohorts, and
+    segments.
+
+- Role: programs
+  - This role has been removed as this service is no longer supported. The role is still available on the [Ficus branch](https://github.com/edx/configuration/releases/tag/open-release%2Fficus.1).
 - Role: credentials
   - Added `CREDENTIALS_EXTRA_APPS` to enable the inclusion of additional Django apps in the Credentials Service.
 - Role: common
@@ -207,6 +239,9 @@
   - Changed SECURITY_UPGRADE_ON_ANSIBLE to only apply security updates.  If you want to retain the behavior of running safe-upgrade,
     you should switch to using SAFE_UPGRADE_ON_ANSIBLE.
 
+- Role: mongo_2_6
+  - Added `MONGO_AUTH` to turn authentication on/off. Auth is now enabled by default, and was previously disabled by default.
+
 - Role: mongo_3_0
   - Changed MONGO_STORAGE_ENGINE to default to wiredTiger which is the default in 3.2 and 3.4 and what edX suggests be used even on 3.0.
     If you have a mmapv1 3.0 install, override MONGO_STORAGE_ENGINE to be mmapv1 which was the old default.
@@ -217,6 +252,12 @@
   - Added `XQUEUE_RABBITMQ_VHOST` to allow configuring the xqueue RabbitMQ host.
   - Added `XQUEUE_RABBITMQ_PORT` to allow configuring the RabbitMQ port.
 
+- Role: ecommerce
+  - Added `ECOMMERCE_ENTERPRISE_URL` for the `enterprise` API endpoint exposed by a new service `edx-enterprise` (currently hosted by `LMS`), which defaults to the existing setting `ECOMMERCE_LMS_URL_ROOT`.
+
+- Role: ecommerce
+  - Removed `SEGMENT_KEY` which is no longer used.  Segment key is now defined in DB configuration. (https://github.com/edx/ecommerce/pull/1121)
+
 - Role: edxapp
   - Added `EDXAPP_CELERY_BROKER_USE_SSL` to allow configuring celery to use TLS.
 
@@ -225,3 +266,4 @@
 
 - Role: ecommerce
   - Removed `SEGMENT_KEY` which is no longer used.  Segment key is now defined in DB configuration. (https://github.com/edx/ecommerce/pull/1121)
+  - Added `EDXAPP_BLOCK_STRUCTURES_SETTINGS` to configure S3-backed Course Block Structures.

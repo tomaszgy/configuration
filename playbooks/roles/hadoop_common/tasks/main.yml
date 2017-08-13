@@ -191,7 +191,7 @@
 - name: native lib built
   shell: "mvn package -X -Pnative -DskipTests"
   args:
-    chdir: "{{ hadoop_common_temporary_dir }}/hadoop-common-release-{{ HADOOP_COMMON_VERSION }}/hadoop-common-project"
+    chdir: "{{ hadoop_common_temporary_dir }}/hadoop-{{ HADOOP_COMMON_VERSION }}-src/hadoop-common-project"
   environment:
     LD_LIBRARY_PATH: /usr/local/lib
   when: not native_libs_built.stat.exists

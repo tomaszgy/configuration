@@ -15,7 +15,6 @@ openedx_releases = {
   "open-release/ficus.2" => "ficus-fullstack-2017-03-28",
   "open-release/ficus.3" => "ficus-fullstack-2017-04-20",
   "open-release/ficus.4" => "ficus-fullstack-2017-08-10",
-
   "open-release/eucalyptus/1rc1" => "eucalyptus-fullstack-1rc1",
   "open-release/eucalyptus.1rc2" => "eucalyptus-fullstack-2016-08-19",
   "open-release/eucalyptus.1" => "eucalyptus-fullstack-2016-08-25",
