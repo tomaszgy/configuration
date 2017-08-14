@@ -60,8 +60,19 @@
     - install
     - install:app-requirements
 
-- name: initialize elasticsearch
-  command: "{{ forum_code_dir }}/bin/rake search:initialize"
+- name: create elasticsearch indexes
+  command: "{{ forum_code_dir }}/bin/rake search:create_index"
+  args:
+    chdir: "{{ forum_code_dir }}"
+  become_user: "{{ forum_user }}"
+  environment: "{{ forum_environment }}"
+  when: migrate_db is defined and migrate_db|lower == "yes"
+  tags:
+    - migrate
+    - migrate:db
+
+- name: rebuild elasticsearch indexes
+  command: "{{ forum_code_dir }}/bin/rake search:rebuild"
   args:
     chdir: "{{ forum_code_dir }}"
   become_user: "{{ forum_user }}"
