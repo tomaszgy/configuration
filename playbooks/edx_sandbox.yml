@@ -70,7 +70,6 @@
     - role: discovery
       when: SANDBOX_ENABLE_DISCOVERY
     # not ready yet: - edx_notes_api
-    - demo
     - oauth_client_setup
     - oraclejdk
     - role: elasticsearch
