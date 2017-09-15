@@ -27,6 +27,7 @@
   roles:
     - role: swapfile
       SWAPFILE_SIZE: 2GB
+    - aws
     - role: nginx
       nginx_sites:
       - certs
