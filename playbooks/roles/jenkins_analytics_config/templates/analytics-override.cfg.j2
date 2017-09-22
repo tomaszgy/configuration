@@ -1,0 +1,55 @@
+[database-export]
+database = {{ ANALYTICS_API_REPORTS_DB_NAME }}
+credentials = {{ analytics_hadoop_storage_url }}/edxanalytics_creds
+
+[database-import]
+database = {{ EDXAPP_MYSQL_DB_NAME }}
+destination = {{ analytics_hadoop_storage_url }}/warehouse/hive/
+credentials = {{ analytics_hadoop_storage_url }}/edxapp_creds
+
+[event-logs]
+expand_interval = 30 days
+pattern = .*tracking.log-(?P<date>[0-9]+).*
+source = {{ analytics_tracking_log_storage_url }}
+
+[hive]
+warehouse_path = {{ analytics_hadoop_storage_url }}/warehouse/hive/
+
+[manifest]
+path = {{ analytics_hadoop_storage_url }}/map-reduce/manifests/
+lib_jar = {{ analytics_config_storage_url }}/edx-analytics-hadoop-util.jar
+input_format = org.edx.hadoop.input.ManifestTextInputFormat
+
+[map-reduce]
+marker = {{ analytics_hadoop_storage_url }}/map-reduce/marker/
+
+[enrollments]
+interval_start = {{ analytics_interval_start }}
+blacklist_date = 2001-01-01
+blacklist_path = {{ analytics_hadoop_storage_url }}/enrollments-blacklist/  # this file is empty
+overwrite_n_days = 3
+
+[location-per-course]
+interval_start = {{ analytics_interval_start }}
+overwrite_n_days = 3
+
+[answer-distribution]
+valid_response_types = customresponse,choiceresponse,optionresponse,multiplechoiceresponse,numericalresponse,stringresponse,formularesponse
+
+[geolocation]
+geolocation_data = {{ analytics_hadoop_storage_url }}/GeoIP.dat
+
+[calendar]
+interval = {{ analytics_calendar_interval }}
+
+[videos]
+dropoff_threshold = 0.05
+
+[elasticsearch]
+host = {{ analytics_elasticsearch_url }}
+connection_type = aws
+
+[module-engagement]
+alias = roster_1_2
+number_of_shards = 5
+allow_empty_insert = true

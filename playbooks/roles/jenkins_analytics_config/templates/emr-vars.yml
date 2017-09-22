@@ -1,0 +1,50 @@
+---
+# Load the cluster name from the environment so that it matches the variable used to lookup the provisioned cluster.
+name: "{{ lookup('env', 'CLUSTER_NAME') }}"
+region: "{{ lookup('env', 'REGION') }}"
+instance_groups:
+  master:
+    num_instances: 1
+    type: m4.large
+    market: ON_DEMAND
+  core:
+    num_instances: 1
+    type: m4.large
+    market: ON_DEMAND
+  task:
+    num_instances: 2
+    type: m4.large
+    market: ON_DEMAND
+role: EMR_EC2_DefaultRole
+keypair_name: "{{ lookup('env', 'KEYPAIR_NAME') }}"
+vpc_subnet_id: "{{ lookup('env', 'VPC_SUBNET_ID') }}"
+log_uri: "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}/logs"
+release_label: "{{ lookup('env', 'EMR_RELEASE_LABEL') }}"
+
+applications:
+  - name: Hadoop
+  - name: Hive
+  - name: Sqoop-Sandbox
+  - name: Ganglia
+    
+configurations:
+  - classification: mapred-site
+    properties:
+      mapreduce.framework.name: 'yarn'
+      mapreduce.jobtracker.retiredjobs.cache.size: '50'
+      mapreduce.reduce.shuffle.input.buffer.percent: '0.20'
+  - classification: yarn-site
+    properties:
+      yarn.resourcemanager.max-completed-applications: '5'
+  - classification: core-site
+    properties:
+      fs.s3n.endpoint: "{{ lookup('env', 'S3_ENDPOINT') }}"
+  
+steps:
+  - type: hive_install
+  - type: script
+    name: "Install Sqoop"
+    step_args: 
+      - "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}/install-sqoop"
+      - "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}"
+    action_on_failure: TERMINATE_JOB_FLOW  # Set to CANCEL_AND_WAIT when debugging step failures.

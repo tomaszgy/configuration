@@ -1,0 +1,7 @@
+---
+- name: Set up Jenkins for Analytics Pipeline tasks
+  hosts: all
+  become: True
+  gather_facts: True
+  roles:
+    - jenkins_analytics_config

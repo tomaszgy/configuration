@@ -1,0 +1,35 @@
+---
+jenkins_user: 'jenkins'
+jenkins_group: 'edx'
+jenkins_home: '/home/{{ jenkins_user }}'
+jenkins_lib: '/var/lib/jenkins'
+
+# In EMR 4.7, cross-region S3 access does not work correctly without this
+# property. Should be fixed in EMR 5.
+# See http://stackoverflow.com/questions/38710637/running-emr-example-getting-301-error
+region: "us-east-1"
+emr_s3_endpoint: "s3.amazonaws.com"
+
+jenkins_home_templated_files:
+  - analytics-override.cfg
+  - edxanalytics_creds
+  - edxapp_creds
+  - jenkins_env
+
+jenkins_home_files:
+  - emr-vars.yml
+
+jenkins_home_repos:
+  - dest: analytics-tasks
+    repo: "{{ analytics_pipeline_repo }}"
+    version: "{{ analytics_pipeline_version }}"
+  - dest: analytics-configuration
+    repo: "{{ analytics_configuration_repo }}"
+    version: "{{ analytics_configuration_version }}"
+
+jenkins_lib_jobs:
+  - ImportEnrollmentsIntoMysql
+  - InsertToMysqlCourseEnrollByCountryWorkflow
+  - AnswerDistributionWorkflow
+  - CourseActivityWeeklyTask
+  - InsertToMysqlAllVideoTask

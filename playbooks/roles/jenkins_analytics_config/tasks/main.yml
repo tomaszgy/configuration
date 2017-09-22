@@ -1,0 +1,48 @@
+---
+
+- name: write templated files to jenkins_home
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ jenkins_home }}/{{ item }}"
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+    mode: 0644
+  with_items: "{{ jenkins_home_templated_files }}"
+
+- name: write regular files to jenkins_home
+  copy:
+    src: "templates/{{ item }}"
+    dest: "{{ jenkins_home }}/{{ item }}"
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+    mode: 0644
+  with_items: "{{ jenkins_home_files }}"
+
+- name: create jenkins task dirs
+  file:
+    path: "{{ jenkins_lib }}/jobs/{{ INSIGHTS_BASE_URL }}_{{ item }}"
+    state: directory
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+    mode: 0755
+  with_items: "{{ jenkins_lib_jobs }}"
+
+- name: create jenkins tasks
+  copy:
+    src: "templates/jenkins/{{ item }}_config.xml"
+    dest: "{{ jenkins_lib }}/jobs/{{ INSIGHTS_BASE_URL }}_{{ item }}/config.xml"
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+    mode: 0644
+  with_items: "{{ jenkins_lib_jobs }}"
+
+- name: clone analytics repos to jenkins_home
+  git:
+    dest: "{{ jenkins_home }}/{{ item.dest }}"
+    repo: "{{ item.repo }}"
+    version: "{{ item.version }}"
+  become_user: "{{ jenkins_user }}"
+  with_items: "{{ jenkins_home_repos }}"
+
+- name: reload jenkins
+  command: /sbin/service jenkins restart
