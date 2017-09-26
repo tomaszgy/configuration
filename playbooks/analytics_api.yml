@@ -22,6 +22,9 @@
     - mysql
     - edxlocal
     - analytics_api
+    - role: nginx
+      nginx_sites:
+        - analytics_api
     - role: postfix_queue
       when: POSTFIX_QUEUE_EXTERNAL_SMTP_HOST != ''
   tasks:
