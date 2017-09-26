@@ -2,6 +2,9 @@
   - Added `NGINX_EDXAPP_CMS_APP_EXTRA`, which makes it possible to add custom settings to the site configuration for Studio.
   - Added `NGINX_EDXAPP_LMS_APP_EXTRA`, which makes it possible to add custom settings to the site configuration for the LMS.
 
+- Role: edxapp
+  - Added `EDXAPP_EXTRA_MIDDLEWARE_CLASSES` for configuring additional middleware logic.
+
 - Role: common
   - Added `COMMON_FALLBACK_DNS_SERVERS`, which optionally adds additional `nameserver` entries to the resolvconf tail
   - Explicitly added `resolvconf` as a dependency
