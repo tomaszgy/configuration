@@ -1,3 +1,6 @@
+- Role: edxapp
+  - Added `EDXAPP_ENABLE_ENTERPRISE_INTEGRATION` for enabling/disabling Enterprise service integration.
+
 - Role: nginx
   - Added `NGINX_EDXAPP_CMS_APP_EXTRA`, which makes it possible to add custom settings to the site configuration for Studio.
   - Added `NGINX_EDXAPP_LMS_APP_EXTRA`, which makes it possible to add custom settings to the site configuration for the LMS.
