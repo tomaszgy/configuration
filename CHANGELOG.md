@@ -1,4 +1,8 @@
 - Role: edxapp
+  - Added `EDXAPP_MONGO_REPLICA_SET` to allow configuring a replica set for edxapp contentstore and modulestore.
+    Note that setting `EDXAPP_MONGO_REPLICA_SET` requires `EDXAPP_MONGO_HOSTS` to be a comma-delimited string listing the host names, not an array.
+
+- Role: edxapp
   - Added GOOGLE_ANALYTICS_TRACKING_ID setting for inserting GA tracking into emails generated via ACE.
 
 - Role: notifier
