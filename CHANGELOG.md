@@ -1,3 +1,6 @@
+- Role: edxapp
+  - Added `EDXAPP_LMS_INTERNAL_ROOT_URL` setting (defaults to `EDXAPP_LMS_ROOT_URL`).
+
 - Role: server_utils
   - Install "vim", not "vim-tiny".
 
